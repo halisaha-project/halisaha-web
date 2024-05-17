@@ -1,9 +1,9 @@
 import { React, useEffect } from 'react'
-import LoginForm from '../components/LoginForm'
+import ForgotPasswordForm from '../components/ForgotPasswordForm'
 import { useNavigate } from 'react-router-dom'
 import messi from '/messi.jpg'
 
-function Login() {
+function ForgotPassword() {
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -20,11 +20,11 @@ function Login() {
         </div>
 
         <div className="w-full sm:w-1/2 flex items-center justify-center bg-messi-blur sm:bg-none bg-cover bg-center bg-black ">
-          <LoginForm />
+          <ForgotPasswordForm />
         </div>
       </div>
     </div>
   )
 }
 
-export default Login
+export default ForgotPassword

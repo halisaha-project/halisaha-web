@@ -1,12 +1,15 @@
-import React from 'react'
+import { React, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { logout } from '../utils/auth'
+import { FaBars } from 'react-icons/fa'
+import { GiSoccerBall } from 'react-icons/gi'
 
 function Header() {
   const navigate = useNavigate()
   const location = useLocation()
+  const [isOpen, setIsOpen] = useState(false)
 
-  if (['/', '/login'].includes(location.pathname)) {
+  if (['/', '/login', '/forgot-password'].includes(location.pathname)) {
     return null
   }
 
@@ -15,12 +18,64 @@ function Header() {
     navigate('/login')
   }
 
+  const handleToggle = () => {
+    setIsOpen(!isOpen)
+  }
+
   return (
     <header>
-      <nav>
-        <h1>Halısaha App</h1>
-        <button onClick={handleLogout}>Çıkış Yap</button>
+      <nav className="flex px-4 lg:px-20 xl:px-60 justify-between items-center h-14 bg-black text-white border-b border-zinc-800">
+        <div className="inline-flex text-2xl items-center space-x-2">
+          <GiSoccerBall />
+          <button>TopRate</button>
+        </div>
+
+        <div className="hidden md:flex space-x-4 text-zinc-50 ">
+          <button className="hover:text-zinc-300">Maçlarım</button>
+          <button className="hover:text-zinc-300">Gruplarım</button>
+          <button className="hover:text-zinc-300">Profil</button>
+        </div>
+        <button
+          onClick={handleLogout}
+          className="hidden md:block hover:text-zinc-300"
+        >
+          Çıkış Yap
+        </button>
+        <button onClick={handleToggle} className="block md:hidden">
+          <FaBars />
+        </button>
       </nav>
+      {isOpen && (
+        <div className="md:hidden flex flex-col items-center bg-black text-white border-t border-zinc-800">
+          <button
+            className="py-2 border-b w-full border-zinc-800 hover:bg-zinc-950"
+            onClick={() => setIsOpen(false)}
+          >
+            Maçlarım
+          </button>
+          <button
+            className="py-2 border-b w-full border-zinc-800 hover:bg-zinc-950"
+            onClick={() => setIsOpen(false)}
+          >
+            Gruplarım
+          </button>
+          <button
+            className="py-2 border-b w-full border-zinc-800 hover:bg-zinc-950"
+            onClick={() => setIsOpen(false)}
+          >
+            Profil
+          </button>
+          <button
+            className="py-2 border-b w-full border-zinc-800 hover:bg-zinc-950"
+            onClick={() => {
+              handleLogout()
+              setIsOpen(false)
+            }}
+          >
+            Çıkış
+          </button>
+        </div>
+      )}
     </header>
   )
 }
