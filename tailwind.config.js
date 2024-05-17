@@ -4,8 +4,8 @@ export default {
   theme: {
     extend: {
       backgroundImage: {
-        messi: "url('/public/messi.jpg')",
-        'messi-blur': "url('/public/messi_blur.jpg')",
+        messi: "url('/messi.jpg')",
+        'messi-blur': "url('/messi_blur.jpg')",
       },
     },
   },

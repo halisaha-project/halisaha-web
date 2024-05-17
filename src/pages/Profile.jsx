@@ -3,9 +3,10 @@ import ProfileInfo from '../components/ProfileInfo'
 
 function Profile() {
   return (
-    <div>
-      <h2>Profil Sayfası</h2>
-      <ProfileInfo />
+    <div className="h-fit bg-black text-white ">
+      <div className=" px-4 lg:px-20 xl:px-60">
+        <ProfileInfo />
+      </div>
     </div>
   )
 }

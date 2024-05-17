@@ -3,8 +3,21 @@
 @tailwind components;
 @tailwind utilities;
 
+
+html {
+  @apply bg-black;
+}
+
 @layer base {
   html {
     font-family: 'Poppins', sans-serif;
   }
+}
+
+@layer components {
+  .custom-input-field {
+    @apply border rounded-lg text-sm focus:border-blue-500 bg-neutral-900 border-neutral-700 text-neutral-400 placeholder-neutral-500 focus:ring-neutral-600;
+  }
+
+  
 }
