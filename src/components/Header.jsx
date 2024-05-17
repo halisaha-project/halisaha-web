@@ -31,9 +31,19 @@ function Header() {
         </div>
 
         <div className="hidden md:flex space-x-4 text-zinc-50 ">
+          <button
+            onClick={() => navigate('/teams')}
+            className="hover:text-zinc-300"
+          >
+            Takımlarım
+          </button>
           <button className="hover:text-zinc-300">Maçlarım</button>
-          <button className="hover:text-zinc-300">Gruplarım</button>
-          <button className="hover:text-zinc-300">Profil</button>
+          <button
+            onClick={() => navigate('/profile')}
+            className="hover:text-zinc-300"
+          >
+            Profil
+          </button>
         </div>
         <button
           onClick={handleLogout}
@@ -49,19 +59,25 @@ function Header() {
         <div className="md:hidden flex flex-col items-center bg-black text-white border-t border-zinc-800">
           <button
             className="py-2 border-b w-full border-zinc-800 hover:bg-zinc-950"
+            onClick={() => {
+              setIsOpen(false)
+              navigate('/teams')
+            }}
+          >
+            Takımlarım
+          </button>
+          <button
+            className="py-2 border-b w-full border-zinc-800 hover:bg-zinc-950"
             onClick={() => setIsOpen(false)}
           >
             Maçlarım
           </button>
           <button
             className="py-2 border-b w-full border-zinc-800 hover:bg-zinc-950"
-            onClick={() => setIsOpen(false)}
-          >
-            Gruplarım
-          </button>
-          <button
-            className="py-2 border-b w-full border-zinc-800 hover:bg-zinc-950"
-            onClick={() => setIsOpen(false)}
+            onClick={() => {
+              setIsOpen(false)
+              navigate('/profile')
+            }}
           >
             Profil
           </button>
