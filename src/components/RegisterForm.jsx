@@ -46,9 +46,9 @@ function RegisterForm() {
   return (
     <div className="w-2/3 lg:w-1/2">
       <div className="text-center">
-        <h1 className="block text-2xl font-bold text-white">Kayıt ol</h1>
+        <h1 className="block text-2xl font-bold text-white">Kayıt Ol</h1>
         <p className="mt-2 text-sm text-neutral-400">
-          Lütfen bir hesap oluştur
+          Bir hesap oluştur
         </p>
       </div>
       <div className="mt-5">
