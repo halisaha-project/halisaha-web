@@ -1,8 +1,15 @@
 import axios from 'axios'
+import { jwtDecode } from 'jwt-decode'
 
 export const isAuthenticated = () => {
   const token = localStorage.getItem('token')
-  return token !== null
+  try {
+    jwtDecode(token)
+    return true
+  } catch (error) {
+    logout()
+    return false
+  }
 }
 
 export const login = async (email, password) => {
@@ -17,6 +24,8 @@ export const login = async (email, password) => {
 
     if (response.status === 200) {
       localStorage.setItem('token', JSON.stringify(response.data.data))
+      const decodedToken = jwtDecode(response.data.data)
+      localStorage.setItem('user', JSON.stringify(decodedToken))
       return { success: true, message: 'Başarılı' }
     }
   } catch (error) {

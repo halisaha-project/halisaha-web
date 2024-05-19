@@ -1,9 +1,9 @@
 import axios from 'axios'
 
-export const getProfileInfo = async () => {
+export const getGroups = async () => {
   try {
     const response = await axios.get(
-      `${import.meta.env.VITE_API_BASE_URL}/users/profile`,
+      `${import.meta.env.VITE_API_BASE_URL}/groups`,
       {
         headers: {
           Authorization: `Bearer ${localStorage
@@ -14,6 +14,7 @@ export const getProfileInfo = async () => {
     )
 
     if (response.status === 200) {
+      console.log(response.data)
       return { success: true, data: response.data }
     }
   } catch (error) {

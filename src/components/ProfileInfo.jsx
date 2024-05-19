@@ -47,7 +47,7 @@ function ProfileInfo() {
     return <p className="text-center mt-4 text-red-500">Hata: {error}</p>
 
   return (
-    <div className="flex flex-wrap p-4 ">
+    <div className="flex flex-wrap p-4">
       <div className="w-full md:w-1/2 p-6 mb-4">
         <h2 className="inline-flex items-center gap-x-2 text-xl sm:text-2xl font-bold mb-4">
           <FaUserCircle /> Profil Bilgileri
