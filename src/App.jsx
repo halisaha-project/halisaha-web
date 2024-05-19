@@ -6,7 +6,7 @@ import PrivateRoute from './components/PrivateRoute'
 import Header from './components/Header'
 import ForgotPassword from './pages/ForgotPassword'
 import Groups from './pages/Groups'
-
+import Register from './pages/Register'
 
 function App() {
   return (
