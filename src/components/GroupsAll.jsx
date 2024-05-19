@@ -3,16 +3,17 @@ import { getGroups } from '../api/groupApi'
 import { CgSpinner } from 'react-icons/cg'
 import { FaUsers } from 'react-icons/fa6'
 import real_madrid from '/real_madrid.png'
+import { useNavigate } from 'react-router-dom'
 
 function GroupsAll() {
   const [groupsData, setGroupsData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchGroupsData = async () => {
       const response = await getGroups()
-      console.log(response.data.data)
 
       if (response.success === true) {
         setGroupsData(response.data.data)
@@ -39,25 +40,38 @@ function GroupsAll() {
   return (
     <div className="p-8">
       <div>
-        <h2 className="inline-flex items-center gap-x-2 text-xl sm:text-2xl font-bold mb-4">
+        <h2 className="inline-flex items-center gap-x-2 text-xl md:text-2xl font-bold mb-4">
           <FaUsers />
           Takımlarım
         </h2>
       </div>
-      <div className="flex justify-between">
+      <div className="flex flex-col space-y-4">
         {groupsData.map((group) => (
-          <div key={group._id} className="flex">
-            <div>
+          <div
+            key={group._id}
+            className="flex h-32 bg-background-theme bg-cover line-clamp-1 truncate bg-center rounded-xl cursor-pointer "
+            onClick={() => {
+              navigate(`/teams/${group._id}`)
+            }}
+          >
+            <div className="flex items-center mx-5 md:mx-10 min-w-16">
               <img className="object-fit h-20" src={real_madrid} />
             </div>
-            <div>
-              <h3 className="text-lg font-bold">{group.groupName}</h3>
+            <div className="flex flex-col justify-center space-y-1 min-w-0 ">
+              <h1 className="text-lg md:text-xl font-medium truncate">
+                {group.groupName}
+              </h1>
+              <h3 className="text-lg font-medium text-gray-300 truncate">
+                #{group.members[0].shirtNumber} -{' '}
+                {group.members[0].mainPosition.abbreviation} -{' '}
+                {group.members[0].altPosition.abbreviation}
+              </h3>
             </div>
           </div>
         ))}
-      </div>
 
-      <a>{JSON.stringify(groupsData)}</a>
+        {/* <a>{JSON.stringify(groupsData)}</a> */}
+      </div>
     </div>
   )
 }

@@ -6,6 +6,7 @@ export default {
       backgroundImage: {
         messi: "url('/messi.jpg')",
         'messi-blur': "url('/messi_blur.jpg')",
+        'background-theme': "url('/background_img.jpg')",
       },
     },
   },
