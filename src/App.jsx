@@ -6,6 +6,7 @@ import PrivateRoute from './components/PrivateRoute'
 import Header from './components/Header'
 import ForgotPassword from './pages/ForgotPassword'
 import Groups from './pages/Groups'
+import Register from './pages/Register'
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<PrivateRoute />}>
           <Route path="/profile" element={<Profile />} />
         </Route>
