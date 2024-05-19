@@ -7,6 +7,7 @@ import Header from './components/Header'
 import ForgotPassword from './pages/ForgotPassword'
 import Groups from './pages/Groups'
 import Register from './pages/Register'
+import GroupsDetail from './pages/GroupsDetail'
 
 function App() {
   return (
@@ -22,6 +23,9 @@ function App() {
         </Route>
         <Route path="/teams" element={<PrivateRoute />}>
           <Route path="/teams" element={<Groups />} />
+        </Route>
+        <Route path="/teams/:id" element={<PrivateRoute />}>
+          <Route path="/teams/:id" element={<GroupsDetail />} />
         </Route>
       </Routes>
     </Router>
