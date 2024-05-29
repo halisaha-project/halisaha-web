@@ -8,6 +8,8 @@ import ForgotPassword from './pages/ForgotPassword'
 import Groups from './pages/Groups'
 import Register from './pages/Register'
 import GroupsDetail from './pages/GroupsDetail'
+import Matches from './pages/Matches'
+import MatchesDetail from './pages/MatchesDetail'
 
 function App() {
   return (
@@ -18,6 +20,12 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/matches" element={<PrivateRoute />}>
+          <Route path="/matches" element={<Matches />} />
+        </Route>
+        <Route path="/matches/:id" element={<PrivateRoute />}>
+          <Route path="/matches/:id" element={<MatchesDetail />} />
+        </Route>
         <Route path="/profile" element={<PrivateRoute />}>
           <Route path="/profile" element={<Profile />} />
         </Route>

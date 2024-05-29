@@ -37,7 +37,12 @@ function Header() {
           >
             Takımlarım
           </button>
-          <button className="hover:text-zinc-300">Maçlarım</button>
+          <button
+            onClick={() => navigate('/matches')}
+            className="hover:text-zinc-300"
+          >
+            Maçlarım
+          </button>
           <button
             onClick={() => navigate('/profile')}
             className="hover:text-zinc-300"
@@ -68,7 +73,10 @@ function Header() {
           </button>
           <button
             className="py-2 border-b w-full border-zinc-800 hover:bg-zinc-950"
-            onClick={() => setIsOpen(false)}
+            onClick={() => {
+              setIsOpen(false)
+              navigate('/matches')
+            }}
           >
             Maçlarım
           </button>
