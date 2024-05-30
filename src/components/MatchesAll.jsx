@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import { getMatches } from '../api/matchApi'
 import { formatDateAndTime } from '../utils/dateUtils'
 import { CgSpinner } from 'react-icons/cg'
-import { FaFutbol } from 'react-icons/fa6'
 import real_madrid from '/real_madrid.png'
 import { useNavigate } from 'react-router-dom'
 
-function MatchesAll() {
+function MatchesAll({ fetchDataMethod, isGroupBy }) {
   const [matchesData, setMatchesData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -15,7 +13,7 @@ function MatchesAll() {
   useEffect(() => {
     const fetchMatchesData = async () => {
       try {
-        const response = await getMatches()
+        const response = await fetchDataMethod
 
         if (response.success === true) {
           setMatchesData(response.data.data)
@@ -46,12 +44,17 @@ function MatchesAll() {
   }
 
   return (
-    <div className="p-8">
+    <div className="px-8">
       <div>
-        <h2 className="inline-flex items-center gap-x-2 text-xl md:text-2xl font-bold mb-4">
-          <FaFutbol />
-          Maçlarım
-        </h2>
+        {isGroupBy ? (
+          <h2 className="inline-flex items-center gap-x-2 text-xl mb-4">
+            Maçlar
+          </h2>
+        ) : (
+          <h2 className="inline-flex items-center gap-x-2 text-xl md:text-2xl font-bold mb-4">
+            Maçlarım
+          </h2>
+        )}
       </div>
       <div className="flex flex-col space-y-4">
         {matchesData.map((match) => (
@@ -69,7 +72,6 @@ function MatchesAll() {
               </h1>
               <h3 className="text-lg font-medium text-gray-300 truncate">
                 {match.location}
-                
               </h3>
             </div>
           </div>

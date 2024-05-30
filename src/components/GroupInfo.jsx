@@ -4,6 +4,8 @@ import { CgSpinner } from 'react-icons/cg'
 import { useNavigate, useParams } from 'react-router-dom'
 import { FaUsers } from 'react-icons/fa'
 import real_madrid from '/real_madrid.png'
+import MatchesAll from '../components/MatchesAll'
+import { getMatchesByGroupId } from '../api/matchApi'
 
 function GroupInfo() {
   const [groupsDetailData, setGroupsDetailData] = useState(null)
@@ -55,13 +57,16 @@ function GroupInfo() {
           </h3>
         </div>
       </div>
-      <div className="p-4">
-        <div>
-          <h1 className="text-lg">Maçlar</h1>
+      <div>
+        <div className="my-4">
+          <MatchesAll
+            fetchDataMethod={getMatchesByGroupId(id)}
+            isGroupBy={true}
+          />
         </div>
-        <div className="space-y-4">
-          <div className="flex items-center space-x-2">
-            <h1 className="text-lg">Oyuncular</h1>
+        <div className="space-y-4 px-8">
+          <div className="flex items-center space-x-2 text-xl">
+            <h1 className="">Oyuncular</h1>
             <FaUsers />
             <p>{groupsDetailData.members.length}</p>
           </div>
