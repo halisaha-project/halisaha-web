@@ -64,7 +64,7 @@ function GroupInfo() {
             isGroupBy={true}
           />
         </div>
-        <div className="space-y-4 px-8">
+        <div className="space-y-4 px-8 mb-4">
           <div className="flex items-center space-x-2 text-xl">
             <h1 className="">Oyuncular</h1>
             <FaUsers />
@@ -75,9 +75,6 @@ function GroupInfo() {
               <div
                 key={member.user._id}
                 className="flex h-24 md:h-32 bg-background-theme bg-cover line-clamp-1 truncate bg-center rounded-xl cursor-pointer "
-                onClick={() => {
-                  navigate(`/teams/${member.user._id}`)
-                }}
               >
                 <div className="flex items-center mx-5 md:mx-10 min-w-16">
                   <div className="relative text-center content-center bg-green-600 h-14 w-14 md:h-16 md:w-16 rounded-full">
@@ -95,13 +92,9 @@ function GroupInfo() {
                 </div>
               </div>
             ))}
-
-            {/* <a>{JSON.stringify(groupsData)}</a> */}
           </div>
         </div>
       </div>
-
-      <p>{JSON.stringify(groupsDetailData)}</p>
     </div>
   )
 }

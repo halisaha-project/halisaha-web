@@ -45,6 +45,8 @@ function MatchesInfo() {
   }
 
   const homeTeamPlayers = matchDetail.lineup.homeTeam || []
+
+  console.log(homeTeamPlayers)
   const awayTeamPlayers = matchDetail.lineup.awayTeam || []
 
   const organizePlayersByPosition = (players) => {
@@ -97,9 +99,34 @@ function MatchesInfo() {
             <FaFutbol />
             <p>{homeTeamPlayers.length + awayTeamPlayers.length}</p>
           </div>
-          <div className="flex justify-center ">
-            <div className="h-[500px] bg-green-soccer-field-theme w-1/3 bg-contain bg-no-repeat">
-              <div className="space-y-12 pt-28">
+          <div className="flex">
+            <div className="w-2/3">
+              <div className="grid md:grid-cols-2 gap-4 px-4">
+                {homeTeamPlayers.map((player) => (
+                  <div
+                    key={player.user.user._id}
+                    className="flex h-24 md:h-24 bg-background-theme bg-cover line-clamp-1 truncate bg-center rounded-xl cursor-pointer "
+                  >
+                    <div className="flex items-center mx-5 md:mx-5 min-w-16">
+                      <div className="relative text-center content-center bg-green-600 h-14 w-14 md:h-16 md:w-16 rounded-full">
+                        <p className="font-medium md:text-lg">10.0</p>
+                      </div>
+                    </div>
+                    <div className="flex flex-col justify-center space-y-1 min-w-0 ">
+                      <h1 className="text-lg md:text-xl font-medium truncate">
+                        {player.user.user.nameSurname}
+                      </h1>
+                      <h3 className="text-lg font-medium text-gray-300 truncate">
+                        #{player.user.shirtNumber} -{' '}
+                        {player.position.abbreviation}
+                      </h3>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="h-[500px] bg-green-soccer-field-theme w-full md:w-1/3 bg-contain bg-no-repeat">
+              <div className="space-y-9 pt-28">
                 <div className="flex justify-around ">
                   {homePlayersByPosition.FWD.map((player) => {
                     return (
