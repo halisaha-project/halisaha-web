@@ -2,6 +2,7 @@ import React from 'react'
 import { MdError } from 'react-icons/md'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { sendOtp } from '../api/otpApi'
 
 function ForgotPasswordForm() {
   const [email, setEmail] = useState('')
@@ -11,8 +12,23 @@ function ForgotPasswordForm() {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    // TO-DO Check if the email is valid and send a password reset link or 2FA code to the user's email
-  }
+    // E-posta adresi formatını kontrol et
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setEmailError(true);
+      setErrorMessage('Lütfen geçerli bir e-posta adresi girin');
+      return;
+    }
+
+    // OTP gönderme API çağrısı
+    const response = await sendOtp(email);
+    if (response.success) {
+      navigate('/otp-page', { state: { email } });
+    } else {
+      setEmailError(true);
+      setErrorMessage(response.message);
+    }
+  };
 
   return (
     <div className="w-2/3 lg:w-1/2 ">
