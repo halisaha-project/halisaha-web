@@ -18,7 +18,9 @@ const OTP = () => {
       const response = await verifyOtp(email, otp)
       if (response.success) {
         navigate('/reset-password', { state: { email, otp } })
-      } 
+      }  else {
+        setOtpError(true)
+      }
     }
 
     return (
