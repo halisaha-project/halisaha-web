@@ -9,10 +9,12 @@ import { getMatchesByGroupId } from '../api/matchApi'
 
 function GroupInfo() {
   const [groupsDetailData, setGroupsDetailData] = useState(null)
+  const [playerUser, setPlayerUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const navigate = useNavigate()
   const { id } = useParams()
+  const user = JSON.parse(localStorage.getItem('user'))
 
   useEffect(() => {
     const fetchGroupsData = async () => {
@@ -20,6 +22,11 @@ function GroupInfo() {
 
       if (response.success === true) {
         setGroupsDetailData(response.data.data)
+
+        const userPlayerData = response.data.data.members.filter(
+          (member) => member.user._id === user.sub
+        )
+        setPlayerUser(userPlayerData[0])
       } else if (response.success === false) {
         setError(response.message)
       }
@@ -51,9 +58,8 @@ function GroupInfo() {
             {groupsDetailData.groupName}
           </h1>
           <h3 className="text-lg font-medium text-gray-300 truncate">
-            #{groupsDetailData.members[0].shirtNumber} -{' '}
-            {groupsDetailData.members[0].mainPosition.abbreviation} -{' '}
-            {groupsDetailData.members[0].altPosition.abbreviation}
+            #{playerUser.shirtNumber} - {playerUser.mainPosition.abbreviation} -{' '}
+            {playerUser.altPosition.abbreviation}
           </h3>
         </div>
       </div>
