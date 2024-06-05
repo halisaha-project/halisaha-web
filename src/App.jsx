@@ -10,6 +10,8 @@ import Register from './pages/Register'
 import GroupsDetail from './pages/GroupsDetail'
 import Matches from './pages/Matches'
 import MatchesDetail from './pages/MatchesDetail'
+import OTP from './pages/otpPage'
+import ResetPassword from './pages/ResetPassword'
 
 function App() {
   return (
@@ -19,7 +21,9 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/otp-page" element={<OTP />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/matches" element={<PrivateRoute />}>
           <Route path="/matches" element={<Matches />} />
         </Route>
