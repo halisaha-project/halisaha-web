@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { MdError } from 'react-icons/md'
 import { verifyOtp } from '../api/otpApi'
+import { confirmMail } from '../utils/auth'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 const OTP = () => {
@@ -15,13 +16,31 @@ const OTP = () => {
       const email = location.state?.email
   
       // OTP doğrulama API çağrısı
-      const response = await verifyOtp(email, otp)
-      if (response.success) {
-        navigate('/reset-password', { state: { email, otp } })
-      }  else {
-        setOtpError(true)
+      try {
+        const otpResponse = await verifyOtp(email, otp)
+        if (otpResponse.success) {
+          navigate('/reset-password', { state: { email, otp } })
+          return
+        }
+      } catch (otpError) {
+        console.error('OTP doğrulama hatası:', otpError)
       }
+  
+      // OTP doğrulaması başarısız olursa, e-posta doğrulama API çağrısı
+      try {
+        const emailResponse = await confirmMail(otp)
+        if (emailResponse.success) {
+          navigate('/login')
+          return
+        }
+      } catch (emailError) {
+        console.error('E-posta doğrulama hatası:', emailError)
+      }
+  
+      // Her iki doğrulama da başarısız olursa, hata mesajı göster
+      setOtpError(true)
     }
+  
 
     return (
         <div className="w-2/3 lg:w-1/2 ">

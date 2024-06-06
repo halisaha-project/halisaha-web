@@ -31,9 +31,9 @@ function RegisterForm() {
 
     const response = await register(nameSurname, username, email, password);
     if (response.success) {
-      navigate('/login');
+      navigate('/email-verification');
     } else {
-      if (response.message.includes('email')) {
+      if (response.message.includes('email') || response.message.includes('e-mail')) {
         setEmailError(true);
       } else if (response.message.includes('username')) {
         setUsernameError(true);
