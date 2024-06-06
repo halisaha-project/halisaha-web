@@ -9,7 +9,7 @@ function Header() {
   const location = useLocation()
   const [isOpen, setIsOpen] = useState(false)
 
-  if (['/', '/login', '/forgot-password'].includes(location.pathname)) {
+  if (['/', '/login', '/forgot-password','/otp-page','/register' ,'/reset-password' ,'/email-verification'].includes(location.pathname)) {
     return null
   }
 

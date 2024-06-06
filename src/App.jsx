@@ -12,6 +12,7 @@ import Matches from './pages/Matches'
 import MatchesDetail from './pages/MatchesDetail'
 import OTP from './pages/otpPage'
 import ResetPassword from './pages/ResetPassword'
+import EmailVerification from './pages/EmailVerification'
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
         <Route path="/otp-page" element={<OTP />} />
         <Route path="/register" element={<Register />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/email-verification" element={<EmailVerification />} />
         <Route path="/matches" element={<PrivateRoute />}>
           <Route path="/matches" element={<Matches />} />
         </Route>
