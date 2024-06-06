@@ -10,6 +10,7 @@ import Register from './pages/Register'
 import GroupsDetail from './pages/GroupsDetail'
 import Matches from './pages/Matches'
 import MatchesDetail from './pages/MatchesDetail'
+import CreateMatch from './pages/CreateMatch'
 
 function App() {
   return (
@@ -34,6 +35,9 @@ function App() {
         </Route>
         <Route path="/teams/:id" element={<PrivateRoute />}>
           <Route path="/teams/:id" element={<GroupsDetail />} />
+        </Route>
+        <Route path="/teams/:id/createMatch" element={<PrivateRoute />}>
+          <Route path="/teams/:id/createMatch" element={<CreateMatch />} />
         </Route>
       </Routes>
     </Router>
