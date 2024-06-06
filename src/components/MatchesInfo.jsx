@@ -99,16 +99,16 @@ function MatchesInfo() {
             <FaFutbol />
             <p>{homeTeamPlayers.length + awayTeamPlayers.length}</p>
           </div>
-          <div className="flex">
-            <div className="w-2/3">
-              <div className="grid md:grid-cols-2 gap-4 px-4">
+          <div className="flex flex-col md:flex-row items-center md:items-start ">
+            <div className="w-full md:w-2/3 order-2 md:order-1">
+              <div className="grid sm:grid-cols-2 md:grid-cols-1 xl:grid-cols-2 gap-4 px-4">
                 {homeTeamPlayers.map((player) => (
                   <div
                     key={player.user.user._id}
                     className="flex h-24 md:h-24 bg-background-theme bg-cover line-clamp-1 truncate bg-center rounded-xl cursor-pointer "
                   >
-                    <div className="flex items-center mx-5 md:mx-5 min-w-16">
-                      <div className="relative text-center content-center bg-green-600 h-14 w-14 md:h-16 md:w-16 rounded-full">
+                    <div className="flex items-center mx-5 min-w-14">
+                      <div className="relative text-center content-center bg-green-600 h-14 w-14  rounded-full">
                         <p className="font-medium md:text-lg">10.0</p>
                       </div>
                     </div>
@@ -125,13 +125,13 @@ function MatchesInfo() {
                 ))}
               </div>
             </div>
-            <div className="h-[500px] bg-green-soccer-field-theme w-full md:w-1/3 bg-contain bg-no-repeat">
-              <div className="space-y-9 pt-28">
+            <div className="h-[500px] w-[330px] bg-green-soccer-field-theme bg-contain bg-no-repeat order-1 md:order-2">
+              <div className="space-y-11 md:space-y-9 pt-28 md:pt-24 lg:pt-28 ">
                 <div className="flex justify-around ">
                   {homePlayersByPosition.FWD.map((player) => {
                     return (
                       <div key={player} className="">
-                        <div className="relative text-center content-center bg-gray-700 h-10 w-10 md:h-12 md:w-12 rounded-full border-gray-400 border-4">
+                        <div className="relative text-center content-center bg-gray-700 h-12 w-12 md:h-12 md:w-12 rounded-full border-gray-400 border-4">
                           <p className="font-semibold md:text-md">
                             {player.user.shirtNumber}
                           </p>
@@ -144,7 +144,7 @@ function MatchesInfo() {
                   {homePlayersByPosition.MID.map((player) => {
                     return (
                       <div key={player} className="">
-                        <div className="relative text-center content-center bg-gray-700 h-10 w-10 md:h-12 md:w-12 rounded-full border-gray-400 border-4">
+                        <div className="relative text-center content-center bg-gray-700 h-12 w-12 md:h-12 md:w-12 rounded-full border-gray-400 border-4">
                           <p className="font-semibold md:text-md">
                             {player.user.shirtNumber}
                           </p>
@@ -157,7 +157,7 @@ function MatchesInfo() {
                   {homePlayersByPosition.DEF.map((player) => {
                     return (
                       <div key={player} className="">
-                        <div className="relative text-center content-center bg-gray-700 h-10 w-10 md:h-12 md:w-12 rounded-full border-gray-400 border-4">
+                        <div className="relative text-center content-center bg-gray-700 h-12 w-12 md:h-12 md:w-12 rounded-full border-gray-400 border-4">
                           <p className="font-semibold md:text-md">
                             {player.user.shirtNumber}
                           </p>
@@ -170,7 +170,7 @@ function MatchesInfo() {
                   {homePlayersByPosition.GK.map((player) => {
                     return (
                       <div key={player} className="">
-                        <div className="relative text-center content-center bg-gray-700 h-10 w-10 md:h-12 md:w-12 rounded-full border-gray-400 border-4">
+                        <div className="relative text-center content-center bg-gray-700 h-12 w-12 md:h-12 md:w-12 rounded-full border-gray-400 border-4">
                           <p className="font-semibold md:text-md">
                             {player.user.shirtNumber}
                           </p>
