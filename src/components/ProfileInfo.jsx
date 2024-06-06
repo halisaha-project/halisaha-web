@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { getProfileInfo } from '../api/userApi'
 import { FaUserCircle } from 'react-icons/fa'
 import { PiPasswordBold } from 'react-icons/pi'
+import { changePassword } from '../api/userApi'
 
 function ProfileInfo() {
   const [profileData, setProfileData] = useState(null)
@@ -12,6 +13,7 @@ function ProfileInfo() {
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [passwordError, setPasswordError] = useState(null)
+  const [passwordSuccess, setPasswordSuccess] = useState(null) 
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -35,11 +37,21 @@ function ProfileInfo() {
       setPasswordError('New passwords do not match')
       return
     }
-
-    // Call an API to change the password here (not provided)
-    // Example: await changePassword({ currentPassword, newPassword });
-
-    // Handle success and error responses from the password change API
+  
+    try {
+      const response = await changePassword({ currentPassword, newPassword })
+      if (response.success) {
+        setPasswordSuccess('Şifre başarıyla değiştirildi')
+        //Clear input fields
+        setCurrentPassword('')
+        setNewPassword('')
+        setConfirmPassword('')
+      } else {
+        setPasswordError(response.message)
+      }
+    } catch (error) {
+      setPasswordError('An error occured while changing password')
+    }
   }
 
   if (loading) return <p className="text-center mt-4">Yükleniyor...</p>
@@ -100,6 +112,9 @@ function ProfileInfo() {
           </div>
           {passwordError && (
             <p className="text-red-500 text-sm">{passwordError}</p>
+          )}
+          {passwordSuccess && (
+            <p className="text-green-500 text-sm">{passwordSuccess}</p>
           )}
           <div>
             <button
