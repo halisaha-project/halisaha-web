@@ -32,3 +32,22 @@ export const getProfileInfo = async () => {
     }
   }
 }
+
+export const changePassword = async (passwordData) => {
+  try {
+    const response = await axios.post(
+      `${import.meta.env.VITE_API_BASE_URL}/users/change-password`,
+      passwordData,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage
+            .getItem('token')
+            .replace(/"/g, '')}`,
+        },
+      }
+    )
+    return response.data
+  } catch (error) {
+    return { success: false, message: 'Failed to change password' }
+  }
+}
