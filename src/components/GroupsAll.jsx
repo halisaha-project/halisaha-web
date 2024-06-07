@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import { getGroups , joinGroup } from '../api/groupApi'
+import { getGroups, joinGroup } from '../api/groupApi'
 import { CgSpinner } from 'react-icons/cg'
 import { FaUsers } from 'react-icons/fa6'
 import real_madrid from '/real_madrid.png'
 import { useNavigate } from 'react-router-dom'
 
-const mainPositions = ['DEF', 'MID', 'FWD', 'GK'];
+const mainPositions = ['DEF', 'MID', 'FWD', 'GK']
 
 function GroupsAll() {
   const [groupsData, setGroupsData] = useState(null)
@@ -16,7 +16,8 @@ function GroupsAll() {
   const [mainPosition, setMainPosition] = useState('')
   const [altPosition, setAltPosition] = useState('')
   const [shirtNumber, setShirtNumber] = useState('')
-  const [filteredSubPositions, setFilteredSubPositions] = useState(mainPositions)
+  const [filteredSubPositions, setFilteredSubPositions] =
+    useState(mainPositions)
   const [formError, setFormError] = useState('')
   const navigate = useNavigate()
 
@@ -36,38 +37,43 @@ function GroupsAll() {
   }, [])
 
   useEffect(() => {
-    setFilteredSubPositions(mainPositions.filter(pos => pos !== mainPosition));
-  }, [mainPosition]);
+    setFilteredSubPositions(mainPositions.filter((pos) => pos !== mainPosition))
+  }, [mainPosition])
 
   const handleJoinTeam = async (e) => {
-    e.preventDefault();
-    setFormError('');  
+    e.preventDefault()
+    setFormError('')
 
     try {
-      const response = await joinGroup(inviteCode, mainPosition, altPosition, shirtNumber);
-    
+      const response = await joinGroup(
+        inviteCode,
+        mainPosition,
+        altPosition,
+        shirtNumber
+      )
+
       if (response.success) {
-        const updatedGroupsResponse = await getGroups();
+        const updatedGroupsResponse = await getGroups()
         if (updatedGroupsResponse.success === true) {
-          setGroupsData(updatedGroupsResponse.data.data);
+          setGroupsData(updatedGroupsResponse.data.data)
         } else if (updatedGroupsResponse.success === false) {
-          setError(updatedGroupsResponse.message);
+          setError(updatedGroupsResponse.message)
         }
 
-        setInviteCode('');
-        setMainPosition('');
-        setAltPosition('');
-        setShirtNumber('');
-        setShowJoinForm(false);
+        setInviteCode('')
+        setMainPosition('')
+        setAltPosition('')
+        setShirtNumber('')
+        setShowJoinForm(false)
       } else {
-        console.error('Join group error:', response.message);
-        setFormError(response.message || 'Failed to join the group');
+        console.error('Join group error:', response.message)
+        setFormError(response.message || 'Failed to join the group')
       }
     } catch (error) {
-      console.error('Join group error:', error.message);
-      setFormError('Failed to join the group');
+      console.error('Join group error:', error.message)
+      setFormError('Failed to join the group')
     }
-  };
+  }
 
   if (loading)
     return (
@@ -83,80 +89,85 @@ function GroupsAll() {
 
   return (
     <div className="p-8">
-      <div>
+      <div className="">
         <h2 className="inline-flex items-center gap-x-2 text-xl md:text-2xl font-bold mb-4">
           <FaUsers />
           Takımlarım
         </h2>
         <button
-          className="ml-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 float-right"
-          onClick={() => setShowJoinForm(!showJoinForm)}>
+          className="px-4 py-2 border-white border rounded-lg hover:cursor-pointer  float-right"
+          onClick={() => setShowJoinForm(!showJoinForm)}
+        >
           Takıma Katıl
         </button>
-
       </div>
       {showJoinForm && (
         <div className="mb-8 p-4 rounded-md shadow-md">
           <h3 className="text-lg font-semibold mb-4">Takıma Katıl</h3>
-          <form onSubmit={handleJoinTeam} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium">Davet Kodu</label>
+          <form onSubmit={handleJoinTeam} className=" grid grid-cols-5 gap-4">
+            <div className="">
+              <label className=" text-sm font-medium">Davet Kodu</label>
               <input
                 type="text"
                 value={inviteCode}
                 onChange={(e) => setInviteCode(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 custom-input-field"
+                className="mt-1  w-full px-3 py-2 custom-input-field"
                 required
               />
-            </div>
+            </div>{' '}
             <div>
-              <label className="block text-sm font-medium">Ana Pozisyon</label>
+              <label className=" text-sm font-medium">Ana Pozisyon</label>
               <select
                 value={mainPosition}
                 onChange={(e) => setMainPosition(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 custom-input-field"
+                className="mt-1  w-full px-3 py-2 custom-input-field"
                 required
               >
-                <option value="">Ana Pozisyon Seçiniz</option>
+                <option value="">Seçiniz</option>
                 {mainPositions.map((position, index) => (
-                  <option key={index} value={position}>{position}</option>
+                  <option key={index} value={position}>
+                    {position}
+                  </option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium">Alternatif Pozisyon</label>
+              <label className=" text-sm font-medium">
+                Alternatif Pozisyon
+              </label>
               <select
                 value={altPosition}
                 onChange={(e) => setAltPosition(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 custom-input-field"
+                className="mt-1  w-full px-3 py-2 custom-input-field"
                 required
               >
-                <option value="">Alternatif Pozisyon Seçiniz</option>
+                <option value="">Seçiniz</option>
                 {filteredSubPositions.map((position, index) => (
-                  <option key={index} value={position}>{position}</option>
+                  <option key={index} value={position}>
+                    {position}
+                  </option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium">Forma Numarası</label>
+              <label className=" text-sm font-medium">Forma Numarası</label>
               <input
                 type="text"
                 value={shirtNumber}
                 onChange={(e) => setShirtNumber(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 custom-input-field"
+                className="mt-1  w-full px-3 py-2 custom-input-field"
                 required
               />
             </div>
-            {formError && (
-              <p className="text-red-500">{formError}</p>
-            )}
-            <button
-              type="submit"
-              className="w-full mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-            >
-              Katıl
-            </button>
-            
+            <div className="content-end">
+              {formError && <p className="text-red-500">{formError}</p>}
+              <button
+                type="submit"
+                className="w-full px-4 py-2 border-white border rounded-lg hover:cursor-pointer"
+              >
+                Katıl
+              </button>
+            </div>
           </form>
         </div>
       )}
