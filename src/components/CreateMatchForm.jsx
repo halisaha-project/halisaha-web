@@ -4,6 +4,7 @@ import { CgSpinner } from 'react-icons/cg'
 import { useNavigate, useParams } from 'react-router-dom'
 import { FaUsers } from 'react-icons/fa'
 import real_madrid from '/real_madrid.png'
+import { createMatch } from '../api/matchApi'
 
 function CreateMatchForm() {
   const [groupsDetailData, setGroupsDetailData] = useState(null)
@@ -14,15 +15,18 @@ function CreateMatchForm() {
   const [midCount, setMidCount] = useState(0)
   const [fwdCount, setFwdCount] = useState(0)
   const [activeMembers, setActiveMembers] = useState([])
+  const [date, setDate] = useState('')
+  const [location, setLocation] = useState('')
   const [error, setError] = useState(null)
+  const [formationError, setFormationError] = useState(null)
   const navigate = useNavigate()
   const { id } = useParams()
   const user = JSON.parse(localStorage.getItem('user'))
   const [positions, setPositions] = useState({
-    FWD: [], // Forvet
-    MID: [], // Orta Saha
-    DEF: [], // Defans
-    GK: [], // Kaleci
+    FWD: [],
+    MID: [],
+    DEF: [],
+    GK: [],
   })
 
   useEffect(() => {
@@ -46,6 +50,30 @@ function CreateMatchForm() {
     fetchGroupsData()
   }, [])
 
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+
+    const groupId = id
+    const players = activeMembers
+    const formation = `${defCount}-${midCount}-${fwdCount}`
+    const matchDate = date + 'Z'
+
+    console.log(groupId, players, formation, matchDate, location)
+
+    const response = await createMatch(
+      groupId,
+      players,
+      formation,
+      matchDate,
+      location
+    )
+    if (response.success === true) {
+      navigate(`/matches/${response.data.data._id}`)
+    } else if (response.success === false) {
+      setError(response.message)
+    }
+  }
+
   const handleDivClick = (id) => {
     setActiveMembers((prevActiveMembers) =>
       prevActiveMembers.includes(id)
@@ -54,18 +82,88 @@ function CreateMatchForm() {
     )
   }
 
+  const handleInputChange = (setter) => (e) => {
+    const value = e.target.value
+    if (value === '') {
+      setter('')
+    } else {
+      const parsedValue = parseInt(value)
+      setter(isNaN(parsedValue) ? 0 : parsedValue)
+    }
+  }
+
+  const parseInput = (value) => {
+    return value === '' ? 0 : parseInt(value)
+  }
+
   useEffect(() => {
+    setFormationError(null)
     const newPositions = {
       FWD: [],
       MID: [],
       DEF: [],
       GK: [],
     }
+    const totalInFormation = defCount + midCount + fwdCount
 
-    if (
-      parseInt(defCount) + parseInt(midCount) + parseInt(fwdCount) + 1 ===
-      activeMembers.length
-    ) {
+    if (totalInFormation < 3) {
+      setPositions({
+        FWD: [],
+        MID: [],
+        DEF: [],
+        GK: [],
+      })
+
+      return
+    }
+    if (defCount < 1 || midCount < 1 || fwdCount < 1) {
+      setFormationError('Dizilişteki her pozisyonda en az 1 oyuncu olmalıdır.')
+      setPositions({
+        FWD: [],
+        MID: [],
+        DEF: [],
+        GK: [],
+      })
+      return
+    }
+    if (defCount > 5 || midCount > 5 || fwdCount > 5) {
+      setFormationError(
+        'Dizilişteki her pozisyonda en fazla 5 oyuncu olmalıdır.'
+      )
+      setPositions({
+        FWD: [],
+        MID: [],
+        DEF: [],
+        GK: [],
+      })
+      return
+    }
+    if (totalInFormation > activeMembers.length) {
+      setFormationError(
+        'Dizilişteki oyuncu sayısı, takımdaki oyuncu sayısından fazla olamaz.'
+      )
+      setPositions({
+        FWD: [],
+        MID: [],
+        DEF: [],
+        GK: [],
+      })
+      return
+    }
+
+    if (totalInFormation < activeMembers.length - 1) {
+      setFormationError(
+        'Dizilişteki oyuncu sayısı, takımdaki oyuncu sayısından 1 eksik (kaleci) ya da eşit olmalıdır.'
+      )
+      setPositions({
+        FWD: [],
+        MID: [],
+        DEF: [],
+        GK: [],
+      })
+      return
+    }
+    if (totalInFormation + 1 === activeMembers.length) {
       newPositions.GK.push(
         <div key={`gk`} className="">
           <div className=" text-center content-center bg-gray-700 h-12 w-12 md:h-12 md:w-12 rounded-full border-gray-400 border-4">
@@ -120,8 +218,8 @@ function CreateMatchForm() {
   if (error)
     return <p className="text-center mt-4 text-red-500">Hata: {error}</p>
   return (
-    <div className="flex gap-4 space-y-4 px-8 mb-4">
-      <div className="w-1/2">
+    <div className="flex flex-col md:flex-row gap-8 space-y-4 px-2 md:px-8 mb-4">
+      <div className="w-full md:w-1/2">
         <div className="flex items-center space-x-2 text-xl">
           <h1 className="">Oyuncular</h1>
           <FaUsers />
@@ -134,7 +232,7 @@ function CreateMatchForm() {
             <div
               key={member.user._id}
               onClick={() => handleDivClick(member.user._id)}
-              className={`flex h-24 md:h-32 bg-background-theme bg-cover line-clamp-1 truncate bg-center rounded-xl cursor-pointer ${
+              className={`flex h-24 md:h-28 bg-background-theme bg-cover line-clamp-1 truncate bg-center rounded-xl cursor-pointer ${
                 activeMembers.includes(member.user._id)
                   ? 'border-2 border-green-500'
                   : ''
@@ -158,69 +256,93 @@ function CreateMatchForm() {
           ))}
         </div>
       </div>
-      <div className="w-1/2">
-        <div>
-          <div className="h-[500px] w-[330px] bg-green-soccer-field-theme bg-contain bg-no-repeat order-1 md:order-2">
-            <div className="space-y-11 md:space-y-9 pt-28 md:pt-24 lg:pt-28 ">
-              <div className="flex justify-around ">{positions.FWD}</div>
-              <div className="flex justify-around ">{positions.MID}</div>
-              <div className="flex justify-around ">{positions.DEF}</div>
-              <div className="flex justify-around ">{positions.GK}</div>
-            </div>
-          </div>
-        </div>
-
-        <div className=" grid gap-4">
-          <div className="flex flex-col">
-            <label htmlFor="">Konum</label>
-            <input className="custom-input-field" type="text" />
-          </div>
-          <div className="grid grid-cols-2 gap-x-4">
-            <div className="flex flex-col">
-              <label htmlFor="">Tarih</label>
-              <input className="custom-input-field" type="datetime-local" />
-            </div>
-            <div className="flex flex-col">
-              <label htmlFor="">
-                Diziliş (
-                {parseInt(defCount) + parseInt(midCount) + parseInt(fwdCount)}/
-                {activeMembers.length})
-              </label>
-              <div className="grid grid-cols-5 items-center text-center">
-                <input
-                  className="custom-input-field text-center"
-                  type="text"
-                  maxLength={1}
-                  value={defCount}
-                  onChange={(e) => setDefCount(e.target.value)}
-                />
-                <h1>-</h1>
-                <input
-                  className="custom-input-field text-center"
-                  type="text"
-                  maxLength={1}
-                  value={midCount}
-                  onChange={(e) => setMidCount(e.target.value)}
-                />
-                <h1>-</h1>
-                <input
-                  className="custom-input-field text-center"
-                  type="text"
-                  maxLength={1}
-                  value={fwdCount}
-                  onChange={(e) => setFwdCount(e.target.value)}
-                />
+      <div className="w-full md:w-1/2 space-y-4">
+        <div className="flex justify-center pt-3">
+          <div className="h-[500px] w-[360px] bg-green-soccer-field-theme bg-cover bg-center  bg-no-repeat">
+            <div className="pt-[100px] ">
+              <div className="flex items-center justify-around h-[100px] ">
+                {positions.FWD}
+              </div>
+              <div className="flex items-center justify-around h-[100px]">
+                {positions.MID}
+              </div>
+              <div className="flex items-center justify-around h-[100px]">
+                {positions.DEF}
+              </div>
+              <div className="flex items-center justify-around h-[100px]">
+                {positions.GK}
               </div>
             </div>
           </div>
-
-          <div
-            className="px-4 py-2 border-white border rounded-lg hover:cursor-pointer text-center items-center"
-            onClick={() => navigate('createMatch')}
-          >
-            Maç Oluştur
-          </div>
         </div>
+        <form onSubmit={handleSubmit}>
+          <div className="grid gap-4">
+            <div className="flex flex-col">
+              <label htmlFor="">Konum</label>
+              <input
+                className="custom-input-field"
+                value={location}
+                type="text"
+                onChange={(e) => setLocation(e.target.value)}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-x-4">
+              <div className="flex flex-col">
+                <label htmlFor="">Tarih</label>
+                <input
+                  className="custom-input-field"
+                  value={date}
+                  type="datetime-local"
+                  onChange={(e) => setDate(e.target.value)}
+                />
+              </div>
+              <div className="flex flex-col">
+                <label htmlFor="">
+                  Diziliş (
+                  {parseInput(defCount) +
+                    parseInput(midCount) +
+                    parseInput(fwdCount)}
+                  /{activeMembers.length})
+                </label>
+                <div className="grid grid-cols-5 items-center text-center">
+                  <input
+                    className="custom-input-field text-center"
+                    type="text"
+                    maxLength={1}
+                    value={defCount}
+                    onChange={handleInputChange(setDefCount)}
+                  />
+                  <h1>-</h1>
+                  <input
+                    className="custom-input-field text-center"
+                    type="text"
+                    maxLength={1}
+                    value={midCount}
+                    onChange={handleInputChange(setMidCount)}
+                  />
+                  <h1>-</h1>
+                  <input
+                    className="custom-input-field text-center"
+                    type="text"
+                    maxLength={1}
+                    value={fwdCount}
+                    onChange={handleInputChange(setFwdCount)}
+                  />
+                </div>
+                {formationError && (
+                  <p className="text-red-500 text-sm mt-2">{formationError}</p>
+                )}
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="px-4 py-2 border-white border rounded-lg hover:cursor-pointer text-center items-center"
+            >
+              Maç Oluştur
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   )

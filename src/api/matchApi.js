@@ -101,3 +101,50 @@ export const getMatchDetail = async (id) => {
     }
   }
 }
+
+export const createMatch = async (
+  groupId,
+  players,
+  formation,
+  matchDate,
+  location
+) => {
+  try {
+    const response = await axios.post(
+      `${import.meta.env.VITE_API_BASE_URL}/matches`,
+      {
+        groupId,
+        players,
+        formation,
+        matchDate,
+        location,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage
+            .getItem('token')
+            .replace(/"/g, '')}`,
+        },
+      }
+    )
+
+    if (response.status === 200) {
+      console.log(response.data)
+      return { success: true, data: response.data }
+    }
+  } catch (error) {
+    if (error.response) {
+      console.error('Match error:', error.response.data)
+      return {
+        success: false,
+        message: error.response.data.message || 'Cannot create matches ',
+      }
+    } else if (error.request) {
+      console.error('Match error', error.request)
+      return { success: false, message: 'No response from server' }
+    } else {
+      console.error('Match error', error.message)
+      return { success: false, message: 'Request error' }
+    }
+  }
+}

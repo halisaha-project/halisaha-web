@@ -99,9 +99,9 @@ function MatchesInfo() {
             <FaFutbol />
             <p>{homeTeamPlayers.length + awayTeamPlayers.length}</p>
           </div>
-          <div className="flex flex-col md:flex-row items-center md:items-start ">
-            <div className="w-full md:w-2/3 order-2 md:order-1">
-              <div className="grid sm:grid-cols-2 md:grid-cols-1 xl:grid-cols-2 gap-4 px-4">
+          <div className="flex flex-col md:flex-row items-center md:items-start">
+            <div className="w-full md:w-1/2 order-2 md:order-1 mt-4 md:mt-0">
+              <div className="grid sm:grid-cols-1 md:grid-cols-1 xl:grid-cols-1 gap-4 px-4">
                 {homeTeamPlayers.map((player) => (
                   <div
                     key={player.user.user._id}
@@ -125,59 +125,61 @@ function MatchesInfo() {
                 ))}
               </div>
             </div>
-            <div className="h-[500px] w-[330px] bg-green-soccer-field-theme bg-contain bg-no-repeat order-1 md:order-2">
-              <div className="space-y-11 md:space-y-9 pt-28 md:pt-24 lg:pt-28 ">
-                <div className="flex justify-around ">
-                  {homePlayersByPosition.FWD.map((player) => {
-                    return (
-                      <div key={player} className="">
-                        <div className="relative text-center content-center bg-gray-700 h-12 w-12 md:h-12 md:w-12 rounded-full border-gray-400 border-4">
-                          <p className="font-semibold md:text-md">
-                            {player.user.shirtNumber}
-                          </p>
+            <div className="flex justify-center md:w-1/2 order-1 md:order-2 ">
+              <div className="h-[500px] w-[360px] bg-green-soccer-field-theme bg-cover bg-center bg-no-repeat ">
+                <div className="pt-[100px]">
+                  <div className="flex items-center justify-around h-[100px]  ">
+                    {homePlayersByPosition.FWD.map((player) => {
+                      return (
+                        <div key={player} className="">
+                          <div className="relative text-center content-center bg-gray-700 h-12 w-12 md:h-12 md:w-12 rounded-full border-gray-400 border-4">
+                            <p className="font-semibold md:text-md">
+                              {player.user.shirtNumber}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    )
-                  })}
-                </div>
-                <div className="flex justify-around ">
-                  {homePlayersByPosition.MID.map((player) => {
-                    return (
-                      <div key={player} className="">
-                        <div className="relative text-center content-center bg-gray-700 h-12 w-12 md:h-12 md:w-12 rounded-full border-gray-400 border-4">
-                          <p className="font-semibold md:text-md">
-                            {player.user.shirtNumber}
-                          </p>
+                      )
+                    })}
+                  </div>
+                  <div className="flex items-center justify-around h-[100px]  ">
+                    {homePlayersByPosition.MID.map((player) => {
+                      return (
+                        <div key={player} className="">
+                          <div className="relative text-center content-center bg-gray-700 h-12 w-12 md:h-12 md:w-12 rounded-full border-gray-400 border-4">
+                            <p className="font-semibold md:text-md">
+                              {player.user.shirtNumber}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    )
-                  })}
-                </div>
-                <div className="flex  justify-around ">
-                  {homePlayersByPosition.DEF.map((player) => {
-                    return (
-                      <div key={player} className="">
-                        <div className="relative text-center content-center bg-gray-700 h-12 w-12 md:h-12 md:w-12 rounded-full border-gray-400 border-4">
-                          <p className="font-semibold md:text-md">
-                            {player.user.shirtNumber}
-                          </p>
+                      )
+                    })}
+                  </div>
+                  <div className="flex items-center justify-around h-[100px]  ">
+                    {homePlayersByPosition.DEF.map((player) => {
+                      return (
+                        <div key={player} className="">
+                          <div className="relative text-center content-center bg-gray-700 h-12 w-12 md:h-12 md:w-12 rounded-full border-gray-400 border-4">
+                            <p className="font-semibold md:text-md">
+                              {player.user.shirtNumber}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    )
-                  })}
-                </div>
-                <div className="flex justify-center">
-                  {homePlayersByPosition.GK.map((player) => {
-                    return (
-                      <div key={player} className="">
-                        <div className="relative text-center content-center bg-gray-700 h-12 w-12 md:h-12 md:w-12 rounded-full border-gray-400 border-4">
-                          <p className="font-semibold md:text-md">
-                            {player.user.shirtNumber}
-                          </p>
+                      )
+                    })}
+                  </div>
+                  <div className="flex items-center justify-around h-[100px] ">
+                    {homePlayersByPosition.GK.map((player) => {
+                      return (
+                        <div key={player} className="">
+                          <div className="relative text-center content-center bg-gray-700 h-12 w-12 md:h-12 md:w-12 rounded-full border-gray-400 border-4">
+                            <p className="font-semibold md:text-md">
+                              {player.user.shirtNumber}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    )
-                  })}
+                      )
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
