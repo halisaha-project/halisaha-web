@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { getGroupDetail } from '../api/groupApi'
+import { getGroupDetail, createGroupInvitationLink } from '../api/groupApi'
 import { CgSpinner } from 'react-icons/cg'
 import { useNavigate, useParams } from 'react-router-dom'
 import { FaUsers } from 'react-icons/fa'
@@ -11,6 +11,8 @@ function GroupInfo() {
   const [groupsDetailData, setGroupsDetailData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [showInviteCode, setShowInviteCode] = useState(false)
+  const [inviteCode, setInviteCode] = useState('')
   const navigate = useNavigate()
   const { id } = useParams()
 
@@ -29,7 +31,21 @@ function GroupInfo() {
     fetchGroupsData()
   }, [])
 
-  if (loading)
+  const handleCreateInvite = async () => {
+    try {
+      const response = await createGroupInvitationLink(id)
+      if (response.success === true) {
+        setInviteCode(response.data.data.token)
+        setShowInviteCode(!showInviteCode) // Toggle showInviteCode state
+      } else {
+        setError(response.message)
+      }
+    } catch (error) {
+      setError('Error creating invitation link')
+    }
+  }
+
+  if (loading) {
     return (
       <div
         className="flex justify-center items-center"
@@ -38,8 +54,10 @@ function GroupInfo() {
         <CgSpinner className="animate-spin text-5xl" />
       </div>
     )
-  if (error)
+  }
+  if (error) {
     return <p className="text-center mt-4 text-red-500">Hata: {error}</p>
+  }
   return (
     <div className="pt-8">
       <div className="flex">
@@ -56,7 +74,22 @@ function GroupInfo() {
             {groupsDetailData.members[0].altPosition.abbreviation}
           </h3>
         </div>
+        <div className="flex items-center justify-end flex-grow mx-4 md:mx-10">
+          <button
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            onClick={handleCreateInvite}
+          >
+            {showInviteCode ? 'Davet Kodunu Gizle' : 'Davet Kodu Oluştur/Görüntüle'}
+          </button>
+        </div>
       </div>
+      {showInviteCode && (
+        <div className="my-4 p-4 rounded-md shadow-md">
+          <p className="text-center text-lg font-semibold">
+            Davet Kodu: {inviteCode}
+          </p>
+        </div>
+      )}
       <div>
         <div className="my-4">
           <MatchesAll
