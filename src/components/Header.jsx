@@ -9,7 +9,17 @@ function Header() {
   const location = useLocation()
   const [isOpen, setIsOpen] = useState(false)
 
-  if (['/', '/login', '/forgot-password','/otp-page','/register' ,'/reset-password' ,'/email-verification'].includes(location.pathname)) {
+  if (
+    [
+      '/',
+      '/login',
+      '/forgot-password',
+      '/otp-page',
+      '/register',
+      '/reset-password',
+      '/email-verification',
+    ].includes(location.pathname)
+  ) {
     return null
   }
 
@@ -24,7 +34,7 @@ function Header() {
 
   return (
     <header>
-      <nav className="flex px-4 lg:px-20 xl:px-60 justify-between items-center h-14 bg-black text-white border-b border-zinc-800">
+      <nav className="flex px-4 lg:px-20 xl:px-40 justify-between items-center h-14 bg-black text-white border-b border-zinc-800">
         <div className="inline-flex text-2xl items-center space-x-2">
           <GiSoccerBall />
           <button>TopRate</button>
