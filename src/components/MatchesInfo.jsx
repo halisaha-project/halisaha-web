@@ -100,8 +100,8 @@ function MatchesInfo() {
             <p>{homeTeamPlayers.length + awayTeamPlayers.length}</p>
           </div>
           <div className="flex flex-col md:flex-row items-center md:items-start">
-            <div className="w-full md:w-1/2 order-2 md:order-1 mt-4 md:mt-0">
-              <div className="grid sm:grid-cols-1 md:grid-cols-1 xl:grid-cols-1 gap-4 px-4">
+            <div className="w-full md:w-4/5 order-2 md:order-1 mt-4 md:mt-0">
+              <div className="grid sm:grid-cols-1 md:grid-cols-1 xl:grid-cols-2 gap-4 px-4">
                 {homeTeamPlayers.map((player) => (
                   <div
                     key={player.user.user._id}

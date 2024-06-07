@@ -57,25 +57,31 @@ function MatchesAll({ fetchDataMethod, isGroupBy }) {
         )}
       </div>
       <div className="flex flex-col space-y-4">
-        {matchesData.map((match) => (
-          <div
-            key={match._id}
-            className="flex h-32 bg-background-theme bg-cover line-clamp-1 truncate bg-center rounded-xl cursor-pointer"
-            onClick={() => navigate(`/matches/${match._id}`)}
-          >
-            <div className="flex items-center mx-5 md:mx-10 min-w-16">
-              <img className="object-fit h-20" src={real_madrid} />
-            </div>
-            <div className="flex flex-col justify-center space-y-1 min-w-0 ">
-              <h1 className="text-lg md:text-xl font-medium truncate">
-                {formatDateAndTime(match.matchDate)}
-              </h1>
-              <h3 className="text-lg font-medium text-gray-300 truncate">
-                {match.location}
-              </h3>
-            </div>
+        {matchesData.length === 0 ? (
+          <div className="flex justify-center items-center h-16 bg-background-theme bg-cover bg-center rounded-xl">
+            <h1 className="text-lg md:text-xl font-medium">Henüz Maç Yok</h1>
           </div>
-        ))}
+        ) : (
+          matchesData.map((match) => (
+            <div
+              key={match._id}
+              className="flex h-32 bg-background-theme bg-cover line-clamp-1 truncate bg-center rounded-xl cursor-pointer"
+              onClick={() => navigate(`/matches/${match._id}`)}
+            >
+              <div className="flex items-center mx-5 md:mx-10 min-w-16">
+                <img className="object-fit h-20" src={real_madrid} />
+              </div>
+              <div className="flex flex-col justify-center space-y-1 min-w-0 ">
+                <h1 className="text-lg md:text-xl font-medium truncate">
+                  {formatDateAndTime(match.matchDate)}
+                </h1>
+                <h3 className="text-lg font-medium text-gray-300 truncate">
+                  {match.location}
+                </h3>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   )

@@ -4,7 +4,7 @@ import { getMatches } from '../api/matchApi'
 
 function Matches() {
   return (
-    <div className="lg:px-20 xl:px-60 py-8">
+    <div className="lg:px-20 xl:px-40 py-8">
       <MatchesAll fetchDataMethod={getMatches()} isGroupBy={false} />
     </div>
   )

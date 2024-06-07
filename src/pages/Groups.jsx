@@ -3,7 +3,7 @@ import GroupsAll from '../components/GroupsAll'
 
 function Groups() {
   return (
-    <div className="lg:px-20 xl:px-60">
+    <div className="xl:px-40 ">
       <GroupsAll />
     </div>
   )
