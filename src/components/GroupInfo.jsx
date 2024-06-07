@@ -45,7 +45,7 @@ function GroupInfo() {
       const response = await createGroupInvitationLink(id)
       if (response.success === true) {
         setInviteCode(response.data.data.token)
-        setShowInviteCode(!showInviteCode) // Toggle showInviteCode state
+        setShowInviteCode(!showInviteCode)
       } else {
         setError(response.message)
       }
@@ -69,82 +69,75 @@ function GroupInfo() {
   }
   return (
     <div className="pt-8">
-      <div className="flex justify-between">
-        <div className="flex items-center mx-4 md:mx-10 min-w-14">
-          <img className="object-fit h-20" src={real_madrid} />
+      <div className="flex flex-col md:flex-row justify-between">
+        <div className="flex w-full">
+          <div className="flex items-center mx-4 md:mx-10 min-w-14">
+            <img className="object-fit h-20" src={real_madrid} />
+          </div>
+          <div className="flex flex-col justify-center space-y-1 min-w-0">
+            <h1 className="text-lg md:text-xl font-medium truncate">
+              {groupsDetailData.groupName}
+            </h1>
+            <h3 className="text-lg font-medium text-gray-300 truncate">
+              #{playerUser.shirtNumber} - {playerUser.mainPosition.abbreviation}{' '}
+              - {playerUser.altPosition.abbreviation}
+            </h3>
+          </div>
         </div>
-        <div className="flex flex-col justify-center space-y-1 min-w-0">
-          <h1 className="text-lg md:text-xl font-medium truncate">
-            {groupsDetailData.groupName}
-          </h1>
-          <h3 className="text-lg font-medium text-gray-300 truncate">
-            #{playerUser.shirtNumber} - {playerUser.mainPosition.abbreviation} -{' '}
-            {playerUser.altPosition.abbreviation}
-          </h3>
-        </div>
-        <div className="flex items-center ml-auto pr-8">
+
+        <div className="flex w-full items-center justify-end md:pr-8 mt-4 px-6 gap-4">
           {isAdmin && (
             <div
-              className="px-4 py-2 border-white border rounded-lg hover:cursor-pointer"
+              className="px-4 py-2 w-full md:w-1/2 text-center border-white border rounded-lg hover:cursor-pointer"
               onClick={() => navigate('createMatch')}
             >
               Maç Oluştur
             </div>
           )}
-          <div className="flex items-center justify-end flex-grow mx-4 md:mx-10">
-            <button
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-              onClick={handleCreateInvite}
-            >
-              {showInviteCode
-                ? 'Davet Kodunu Gizle'
-                : 'Davet Kodu Oluştur/Görüntüle'}
-            </button>
+
+          <div
+            className="px-4 py-2 w-full md:w-1/2 text-center border-white border rounded-lg hover:cursor-pointer"
+            onClick={handleCreateInvite}
+          >
+            {showInviteCode ? inviteCode : 'Davet Et'}
           </div>
         </div>
-        {showInviteCode && (
-          <div className="my-4 p-4 rounded-md shadow-md">
-            <p className="text-center text-lg font-semibold">
-              Davet Kodu: {inviteCode}
-            </p>
+      </div>
+      <div>
+        <div className="my-4">
+          <MatchesAll
+            fetchDataMethod={getMatchesByGroupId(id)}
+            isGroupBy={true}
+          />
+        </div>
+        <div className="space-y-4 px-8 mb-4">
+          <div className="flex items-center space-x-2 text-xl">
+            <h1 className="">Oyuncular</h1>
+            <FaUsers />
+            <p>{groupsDetailData.members.length}</p>
           </div>
-        )}
-        <div>
-          <div className="my-4">
-            <MatchesAll
-              fetchDataMethod={getMatchesByGroupId(id)}
-              isGroupBy={true}
-            />
-          </div>
-          <div className="space-y-4 px-8 mb-4">
-            <div className="flex items-center space-x-2 text-xl">
-              <h1 className="">Oyuncular</h1>
-              <FaUsers />
-              <p>{groupsDetailData.members.length}</p>
-            </div>
-            <div className="grid md:grid-cols-2 gap-4">
-              {groupsDetailData.members.map((member) => (
-                <div
-                  key={member.user._id}
-                  className="flex h-24 md:h-32 bg-background-theme bg-cover line-clamp-1 truncate bg-center rounded-xl cursor-pointer "
-                >
-                  <div className="flex items-center mx-5 md:mx-10 min-w-16">
-                    <div className="relative text-center content-center bg-green-600 h-14 w-14 md:h-16 md:w-16 rounded-full">
-                      <p className="font-medium md:text-lg">10.0</p>
-                    </div>
-                  </div>
-                  <div className="flex flex-col justify-center space-y-1 min-w-0 ">
-                    <h1 className="text-lg md:text-xl font-medium truncate">
-                      {member.user.nameSurname}
-                    </h1>
-                    <h3 className="text-lg font-medium text-gray-300 truncate">
-                      #{member.shirtNumber} - {member.mainPosition.abbreviation}{' '}
-                      - {member.altPosition.abbreviation}
-                    </h3>
+          <div className="grid md:grid-cols-2 gap-4">
+            {groupsDetailData.members.map((member) => (
+              <div
+                key={member.user._id}
+                className="flex h-24 md:h-32 bg-background-theme bg-cover line-clamp-1 truncate bg-center rounded-xl cursor-pointer "
+              >
+                <div className="flex items-center mx-5 md:mx-10 min-w-16">
+                  <div className="relative text-center content-center bg-green-600 h-14 w-14 md:h-16 md:w-16 rounded-full">
+                    <p className="font-medium md:text-lg">10.0</p>
                   </div>
                 </div>
-              ))}
-            </div>
+                <div className="flex flex-col justify-center space-y-1 min-w-0 ">
+                  <h1 className="text-lg md:text-xl font-medium truncate">
+                    {member.user.nameSurname}
+                  </h1>
+                  <h3 className="text-lg font-medium text-gray-300 truncate">
+                    #{member.shirtNumber} - {member.mainPosition.abbreviation} -{' '}
+                    {member.altPosition.abbreviation}
+                  </h3>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
