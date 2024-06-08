@@ -3,7 +3,7 @@ import VotingForm from '../components/VotingForm'
 
 function Voting() {
   return (
-    <div className="px-4 lg:px-20 xl:px-60">
+    <div className="p-4 lg:px-20 xl:px-40">
       <VotingForm />
     </div>
   )
