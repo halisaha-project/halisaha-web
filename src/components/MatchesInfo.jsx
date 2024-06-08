@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { getMatchDetail } from '../api/matchApi'
 import { CgSpinner } from 'react-icons/cg'
 import { formatDateAndTime } from '../utils/dateUtils'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { FaFutbol } from 'react-icons/fa6'
 import real_madrid from '/real_madrid.png'
 
@@ -10,7 +10,10 @@ function MatchesInfo() {
   const [matchDetail, setMatchDetail] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [playerUser, setPlayerUser] = useState(null)
   const { id } = useParams()
+  const user = JSON.parse(localStorage.getItem('user'))
+  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchMatchDetail = async () => {
@@ -18,6 +21,12 @@ function MatchesInfo() {
         const response = await getMatchDetail(id)
         if (response.success === true) {
           setMatchDetail(response.data.data)
+
+          const userPlayerData = response.data.data.lineup.homeTeam.filter(
+            (player) => player.user.user._id === user.sub
+          )
+          setPlayerUser(userPlayerData[0])
+          console.log(playerUser)
         } else if (response.success === false) {
           setError(response.message)
         }
@@ -72,27 +81,36 @@ function MatchesInfo() {
 
   return (
     <div className="pt-8">
-      <div className="flex justify-center">
-        <div className="flex items-center mx-4 md:mx-10 min-w-14">
-          <img
-            className="object-fit h-20"
-            src={real_madrid}
-            alt="Real Madrid Logo"
-          />
+      <div className="flex justify-between">
+        <div className="flex">
+          <div className="flex items-center mx-4 md:mx-10 min-w-14">
+            <img
+              className="object-fit h-20"
+              src={real_madrid}
+              alt="Real Madrid Logo"
+            />
+          </div>
+          <div className="flex flex-col justify-center space-y-1 min-w-0">
+            <h1 className="text-lg md:text-xl font-medium truncate">
+              {formatDateAndTime(matchDetail.matchDate)}
+            </h1>
+            <h3 className="text-lg font-medium text-gray-300 truncate">
+              {matchDetail.location}
+            </h3>
+          </div>
         </div>
-        <div className="flex flex-col justify-center space-y-1 min-w-0">
-          <h1 className="text-lg md:text-xl font-medium truncate">
-            {formatDateAndTime(matchDetail.matchDate)}
-          </h1>
-          <h3 className="text-lg font-medium text-gray-300 truncate">
-            {matchDetail.location}
-          </h3>
-        </div>
+        {playerUser && !playerUser.hasVoted && (
+          <div className="flex items-center pr-16">
+            <button
+              className="px-4 py-2 text-center sm:min-w-[150px] border-white border rounded-lg hover:cursor-pointer"
+              onClick={() => navigate('voting')}
+            >
+              Puan Ver
+            </button>
+          </div>
+        )}
       </div>
-      <div className="p-4">
-        <div className="">
-          <h1 className="text-lg">Maç Detayı</h1>
-        </div>
+      <div className="py-4 px-8">
         <div className="space-y-4">
           <div className="flex items-center space-x-2">
             <h1 className="text-lg">Oyuncular</h1>
@@ -109,7 +127,7 @@ function MatchesInfo() {
                   >
                     <div className="flex items-center mx-5 min-w-14">
                       <div className="relative text-center content-center bg-green-600 h-14 w-14  rounded-full">
-                        <p className="font-medium md:text-lg">10.0</p>
+                        <p className="font-medium md:text-lg">-</p>
                       </div>
                     </div>
                     <div className="flex flex-col justify-center space-y-1 min-w-0 ">
@@ -131,7 +149,7 @@ function MatchesInfo() {
                   <div className="flex items-center justify-around h-[100px]  ">
                     {homePlayersByPosition.FWD.map((player) => {
                       return (
-                        <div key={player} className="">
+                        <div key={'fwd' + player.user.shirtNumber} className="">
                           <div className="relative text-center content-center bg-gray-700 h-12 w-12 md:h-12 md:w-12 rounded-full border-gray-400 border-4">
                             <p className="font-semibold md:text-md">
                               {player.user.shirtNumber}
@@ -144,7 +162,7 @@ function MatchesInfo() {
                   <div className="flex items-center justify-around h-[100px]  ">
                     {homePlayersByPosition.MID.map((player) => {
                       return (
-                        <div key={player} className="">
+                        <div key={'mid' + player.user.shirtNumber} className="">
                           <div className="relative text-center content-center bg-gray-700 h-12 w-12 md:h-12 md:w-12 rounded-full border-gray-400 border-4">
                             <p className="font-semibold md:text-md">
                               {player.user.shirtNumber}
@@ -157,7 +175,7 @@ function MatchesInfo() {
                   <div className="flex items-center justify-around h-[100px]  ">
                     {homePlayersByPosition.DEF.map((player) => {
                       return (
-                        <div key={player} className="">
+                        <div key={'def' + player.user.shirtNumber} className="">
                           <div className="relative text-center content-center bg-gray-700 h-12 w-12 md:h-12 md:w-12 rounded-full border-gray-400 border-4">
                             <p className="font-semibold md:text-md">
                               {player.user.shirtNumber}
