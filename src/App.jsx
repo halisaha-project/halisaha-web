@@ -14,6 +14,7 @@ import OTP from './pages/otpPage'
 import ResetPassword from './pages/ResetPassword'
 import EmailVerification from './pages/EmailVerification'
 import CreateMatch from './pages/CreateMatch'
+import Voting from './pages/Voting'
 
 function App() {
   return (
@@ -31,7 +32,10 @@ function App() {
           <Route path="/matches" element={<Matches />} />
         </Route>
         <Route path="/matches/:id" element={<PrivateRoute />}>
-          <Route path="/matches/:id" element={<MatchesDetail />} />
+          <Route path="/matches/:id" element={<MatchesDetail />}/>
+        </Route>
+        <Route path="/matches/:id/voting" element={<PrivateRoute />}>
+          <Route path="/matches/:id/voting" element={<Voting />} />
         </Route>
         <Route path="/profile" element={<PrivateRoute />}>
           <Route path="/profile" element={<Profile />} />
