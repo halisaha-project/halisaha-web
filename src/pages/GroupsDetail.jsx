@@ -3,7 +3,7 @@ import GroupInfo from '../components/GroupInfo'
 
 function GroupsDetail() {
   return (
-    <div className="px-4 lg:px-20 xl:px-60">
+    <div className="px-4 lg:px-20 xl:px-40">
       <GroupInfo />
     </div>
   )

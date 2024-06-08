@@ -191,3 +191,37 @@ export const createGroup = async (
     }
   }
 }
+
+export const deleteGroup = async (id) => {
+  try {
+    const response = await axios.delete(
+      `${import.meta.env.VITE_API_BASE_URL}/groups/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage
+            .getItem('token')
+            .replace(/"/g, '')}`,
+        },
+      }
+    )
+
+    if (response.status === 200) {
+      console.log(response.data)
+      return { success: true, data: response.data }
+    }
+  } catch (error) {
+    if (error.response) {
+      console.error('Delete Group error:', error.response.data)
+      return {
+        success: false,
+        message: error.response.data.message || 'Failed to delete the group',
+      }
+    } else if (error.request) {
+      console.error('Delete Group error', error.request)
+      return { success: false, message: 'No response from server' }
+    } else {
+      console.error('Delete Group error', error.message)
+      return { success: false, message: 'Request error' }
+    }
+  }
+}

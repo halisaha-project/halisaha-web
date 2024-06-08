@@ -1,8 +1,13 @@
 import React, { useEffect, useState } from 'react'
-import { getGroupDetail, createGroupInvitationLink } from '../api/groupApi'
+import {
+  getGroupDetail,
+  createGroupInvitationLink,
+  deleteGroup,
+} from '../api/groupApi'
 import { CgSpinner } from 'react-icons/cg'
 import { useNavigate, useParams } from 'react-router-dom'
 import { FaUsers } from 'react-icons/fa'
+import { FaBars } from 'react-icons/fa'
 import real_madrid from '/real_madrid.png'
 import MatchesAll from '../components/MatchesAll'
 import { getMatchesByGroupId } from '../api/matchApi'
@@ -14,6 +19,7 @@ function GroupInfo() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [showInviteCode, setShowInviteCode] = useState(false)
+  const [showDeleteButton, setShowDeleteButton] = useState(false)
   const [inviteCode, setInviteCode] = useState('')
   const navigate = useNavigate()
   const { id } = useParams()
@@ -54,6 +60,17 @@ function GroupInfo() {
     }
   }
 
+  const handleDeleteGroup = async () => {
+    if (confirm('Grubu silmek istediğinize emin misiniz?')) {
+      const response = await deleteGroup(id)
+      if (response.success === true) {
+        navigate('/teams')
+      } else {
+        setError(response.message)
+      }
+    }
+  }
+
   if (loading) {
     return (
       <div
@@ -85,25 +102,46 @@ function GroupInfo() {
           </div>
         </div>
 
-        <div className="flex w-full items-center justify-end md:pr-8 mt-4 px-6 gap-4">
+        <div className="flex flex-col sm:flex-row w-full items-center justify-end md:pr-8 mt-4 px-6 gap-2">
+          <div className="flex w-full gap-2">
+            {isAdmin && (
+              <div
+                className="px-4 py-2 w-full md:w-1/2 text-center sm:min-w-[150px] border-white border rounded-lg hover:cursor-pointer"
+                onClick={() => navigate('createMatch')}
+              >
+                Maç Oluştur
+              </div>
+            )}
+
+            <div
+              className="px-4 py-2 w-full md:w-1/2 text-center sm:min-w-[150px] border-white border rounded-lg hover:cursor-pointer"
+              onClick={handleCreateInvite}
+            >
+              {showInviteCode ? inviteCode : 'Davet Et'}
+            </div>
+          </div>
+
           {isAdmin && (
             <div
-              className="px-4 py-2 w-full md:w-1/2 text-center border-white border rounded-lg hover:cursor-pointer"
-              onClick={() => navigate('createMatch')}
+              className="flex px-4 w-full py-3 sm:w-auto items-center justify-center  border-white border rounded-lg hover:cursor-pointer"
+              onClick={() => setShowDeleteButton(!showDeleteButton)}
             >
-              Maç Oluştur
+              <FaBars />
             </div>
           )}
-
-          <div
-            className="px-4 py-2 w-full md:w-1/2 text-center border-white border rounded-lg hover:cursor-pointer"
-            onClick={handleCreateInvite}
-          >
-            {showInviteCode ? inviteCode : 'Davet Et'}
-          </div>
         </div>
       </div>
       <div>
+        {showDeleteButton && (
+          <div className="flex justify-center md:justify-end mt-4 md:pr-8">
+            <button
+              className="px-4 py-2  border-red-900 border-2 text-red-600 rounded-lg"
+              onClick={handleDeleteGroup}
+            >
+              Grubu Sil
+            </button>
+          </div>
+        )}
         <div className="my-4">
           <MatchesAll
             fetchDataMethod={getMatchesByGroupId(id)}

@@ -11,9 +11,9 @@ function CreateMatchForm() {
   const [playerUser, setPlayerUser] = useState(null)
   const [isAdmin, setIsAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [defCount, setDefCount] = useState(0)
-  const [midCount, setMidCount] = useState(0)
-  const [fwdCount, setFwdCount] = useState(0)
+  const [defCount, setDefCount] = useState('')
+  const [midCount, setMidCount] = useState('')
+  const [fwdCount, setFwdCount] = useState('')
   const [activeMembers, setActiveMembers] = useState([])
   const [date, setDate] = useState('')
   const [location, setLocation] = useState('')
@@ -52,6 +52,12 @@ function CreateMatchForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    const totalInFormation = defCount + midCount + fwdCount
+
+    if (totalInFormation < 3) {
+      setFormationError('Dizilişte en az 3 oyuncu olmalıdır.')
+      return
+    }
 
     const groupId = id
     const players = activeMembers
@@ -284,6 +290,7 @@ function CreateMatchForm() {
                 value={location}
                 type="text"
                 onChange={(e) => setLocation(e.target.value)}
+                required
               />
             </div>
             <div className="grid grid-cols-2 gap-x-4">
@@ -294,6 +301,7 @@ function CreateMatchForm() {
                   value={date}
                   type="datetime-local"
                   onChange={(e) => setDate(e.target.value)}
+                  required
                 />
               </div>
               <div className="flex flex-col">
@@ -311,6 +319,7 @@ function CreateMatchForm() {
                     maxLength={1}
                     value={defCount}
                     onChange={handleInputChange(setDefCount)}
+                    required
                   />
                   <h1>-</h1>
                   <input
@@ -319,6 +328,7 @@ function CreateMatchForm() {
                     maxLength={1}
                     value={midCount}
                     onChange={handleInputChange(setMidCount)}
+                    required
                   />
                   <h1>-</h1>
                   <input
@@ -327,6 +337,7 @@ function CreateMatchForm() {
                     maxLength={1}
                     value={fwdCount}
                     onChange={handleInputChange(setFwdCount)}
+                    required
                   />
                 </div>
                 {formationError && (
@@ -337,7 +348,8 @@ function CreateMatchForm() {
 
             <button
               type="submit"
-              className="px-4 py-2 border-white border rounded-lg hover:cursor-pointer text-center items-center"
+              className="px-4 py-2 border-white border rounded-lg hover:cursor-pointer text-center items-center disabled:opacity-50 disabled:cursor-not-allowed  "
+              disabled={formationError}
             >
               Maç Oluştur
             </button>
