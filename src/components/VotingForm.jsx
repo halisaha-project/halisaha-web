@@ -159,7 +159,7 @@ const VotingForm = () => {
             className=" px-4 py-2 border-white border rounded-lg hover:cursor-pointer text-center"
             onClick={handleVote}
           >
-            Oylamayı Gönder
+            Puanları Gönder
           </button>
         </div>
       </div>
