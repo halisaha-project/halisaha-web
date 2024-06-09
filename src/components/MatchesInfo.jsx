@@ -120,27 +120,40 @@ function MatchesInfo() {
           <div className="flex flex-col md:flex-row items-center md:items-start">
             <div className="w-full md:w-4/5 order-2 md:order-1 mt-4 md:mt-0">
               <div className="grid sm:grid-cols-1 md:grid-cols-1 xl:grid-cols-2 gap-4 px-4">
-                {homeTeamPlayers.map((player) => (
-                  <div
-                    key={player.user.user._id}
-                    className="flex h-24 md:h-24 bg-background-theme bg-cover line-clamp-1 truncate bg-center rounded-xl cursor-pointer "
-                  >
-                    <div className="flex items-center mx-5 min-w-14">
-                      <div className="relative text-center content-center bg-green-600 h-14 w-14  rounded-full">
-                        <p className="font-medium md:text-lg">-</p>
+                {homeTeamPlayers
+                  .sort((a, b) => b.rating - a.rating)
+                  .map((player) => (
+                    <div
+                      key={player.user.user._id}
+                      className="flex h-24 md:h-24 bg-background-theme bg-cover line-clamp-1 truncate bg-center rounded-xl cursor-pointer "
+                    >
+                      <div className="flex items-center mx-5 min-w-14">
+                        <div
+                          className={`relative text-center content-center h-14 w-14 rounded-full ${
+                            player.rating >= 7
+                              ? 'bg-green-600'
+                              : player.rating >= 5
+                              ? 'bg-yellow-600'
+                              : 'bg-red-600'
+                          }`}
+                        >
+                          <p className="font-medium md:text-lg">
+                            {player.rating ? player.rating : '-'}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col justify-center space-y-1 min-w-0 ">
+                        <h1 className="text-lg md:text-xl font-medium truncate">
+                          {player.user.user.nameSurname}
+                        </h1>
+                        <h3 className="text-lg font-medium text-gray-300 truncate">
+                          #{player.user.shirtNumber} -{' '}
+                          {player.position.abbreviation}
+                        </h3>
                       </div>
                     </div>
-                    <div className="flex flex-col justify-center space-y-1 min-w-0 ">
-                      <h1 className="text-lg md:text-xl font-medium truncate">
-                        {player.user.user.nameSurname}
-                      </h1>
-                      <h3 className="text-lg font-medium text-gray-300 truncate">
-                        #{player.user.shirtNumber} -{' '}
-                        {player.position.abbreviation}
-                      </h3>
-                    </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             </div>
             <div className="flex justify-center md:w-1/2 order-1 md:order-2 ">
