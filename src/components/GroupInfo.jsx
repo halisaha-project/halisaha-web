@@ -161,8 +161,8 @@ function GroupInfo() {
                 className="flex h-24 md:h-32 bg-background-theme bg-cover line-clamp-1 truncate bg-center rounded-xl cursor-pointer "
               >
                 <div className="flex items-center mx-5 md:mx-10 min-w-16">
-                  <div className="relative text-center content-center bg-green-600 h-14 w-14 md:h-16 md:w-16 rounded-full">
-                    <p className="font-medium md:text-lg">10.0</p>
+                  <div className="relative text-center content-center bg-gray-600 h-14 w-14 md:h-16 md:w-16 rounded-full">
+                    <p className="font-medium md:text-lg">#{member.shirtNumber}</p>
                   </div>
                 </div>
                 <div className="flex flex-col justify-center space-y-1 min-w-0 ">
@@ -170,7 +170,7 @@ function GroupInfo() {
                     {member.user.nameSurname}
                   </h1>
                   <h3 className="text-lg font-medium text-gray-300 truncate">
-                    #{member.shirtNumber} - {member.mainPosition.abbreviation} -{' '}
+                    {member.mainPosition.abbreviation} -{' '}
                     {member.altPosition.abbreviation}
                   </h3>
                 </div>

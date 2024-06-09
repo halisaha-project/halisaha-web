@@ -144,22 +144,6 @@ function LoginForm() {
         </form>
       </div>
     </div>
-
-    // <form onSubmit={handleSubmit}>
-    //   <input
-    //     type="email"
-    //     placeholder="E-posta"
-    //     value={username}
-    //     onChange={(e) => setUsername(e.target.value)}
-    //   />
-    //   <input
-    //     type="password"
-    //     placeholder="Şifre"
-    //     value={password}
-    //     onChange={(e) => setPassword(e.target.value)}
-    //   />
-    //   <button type="submit">Giriş Yap</button>
-    // </form>
   )
 }
 
