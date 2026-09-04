@@ -1,4 +1,3 @@
-import React from 'react'
 import GroupInfo from '../components/GroupInfo'
 
 function GroupsDetail() {

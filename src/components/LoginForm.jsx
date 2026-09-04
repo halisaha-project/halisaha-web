@@ -1,15 +1,15 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { login } from '../utils/auth'
+import { useAuth } from '../context/authContext'
 import { FcGoogle } from 'react-icons/fc'
 import { MdError } from 'react-icons/md'
 
 function LoginForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [emailError, setEmailError] = useState(false)
+  const [emailError] = useState(false)
   const [passwordError, setPasswordError] = useState(false)
-  const [rememberMe, setRememberMe] = useState(false)
+  const { login } = useAuth()
   const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
@@ -19,7 +19,7 @@ function LoginForm() {
     if (response.success === true) {
       navigate('/profile')
     } else if (response.success === false) {
-      setPasswordError(true)
+      setPasswordError(response.message || 'Giriş bilgileriniz hatalı')
     }
   }
 
@@ -105,7 +105,7 @@ function LoginForm() {
               </div>
               {passwordError && (
                 <p className="text-xs text-red-600 mt-2" id="password-error">
-                  Giriş bilgileriniz hatalı
+                  {passwordError}
                 </p>
               )}
             </div>
@@ -116,7 +116,6 @@ function LoginForm() {
                     id="remember-me"
                     type="checkbox"
                     className="rounded text-blue-600 focus:ring-blue-500 bg-neutral-800 border-neutral-700 checked:bg-blue-500 checked:border-blue-500 focus:ring-offset-gray-800"
-                    onChange={(e) => setRememberMe(e.target.checked)}
                   />
                 </div>
                 <div className="ms-3">

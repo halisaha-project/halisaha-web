@@ -1,4 +1,3 @@
-import React from 'react'
 import GroupsAll from '../components/GroupsAll'
 
 function Groups() {

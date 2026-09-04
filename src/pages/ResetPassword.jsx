@@ -1,4 +1,3 @@
-import { React, useEffect } from 'react'
 import ResetPasswordForm from '../components/ResetPasswordForm'
 import messi from '/messi.jpg'
 

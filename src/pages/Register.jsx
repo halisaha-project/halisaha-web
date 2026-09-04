@@ -1,16 +1,13 @@
-import  { React,useEffect } from 'react';
 import RegisterForm from '../components/RegisterForm';
-import { useNavigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../context/authContext';
 import messi from '/messi.jpg';
 
 function Register() {
-  const navigate = useNavigate();
+  const { isAuthenticated, loading } = useAuth();
 
-  useEffect(() => {
-    if (localStorage.getItem('token')) {
-      navigate('/profile');
-    }
-  }, [navigate]);
+  if (loading) return null;
+  if (isAuthenticated) return <Navigate to="/profile" replace />;
 
   return (
     <div>

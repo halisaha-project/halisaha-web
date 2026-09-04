@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { getMatchDetail } from '../api/matchApi'
 import { vote } from '../api/voteApi'
 import { FaUsers } from 'react-icons/fa'
 import { IoStar, IoStarHalf, IoStarOutline } from 'react-icons/io5'
+import { useAuth } from '../context/authContext'
 
 const VotingForm = () => {
   const { id } = useParams()
-  const user = JSON.parse(localStorage.getItem('user'))
+  const { user } = useAuth()
   const [matchDetail, setMatchDetail] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -38,7 +39,7 @@ const VotingForm = () => {
     const players = [
       ...(matchDetail?.lineup?.homeTeam || []),
       ...(matchDetail?.lineup?.awayTeam || []),
-    ].filter((player) => player.user.user._id !== user.sub)
+    ].filter((player) => player.user.user._id !== user.id)
 
     for (let player of players) {
       if (!ratings[player.user.user._id]) {
@@ -52,7 +53,7 @@ const VotingForm = () => {
         matchId: id,
         votes: [
           {
-            voterId: user.sub,
+            voterId: user.id,
             votedUsers: Object.keys(ratings).map((playerId) => ({
               votedUserId: playerId,
               rating: ratings[playerId],

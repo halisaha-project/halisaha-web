@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { formatDateAndTime } from '../utils/dateUtils'
 import { CgSpinner } from 'react-icons/cg'
 import real_madrid from '/real_madrid.png'
@@ -16,19 +16,26 @@ function MatchesAll({ fetchDataMethod, isGroupBy }) {
         const response = await fetchDataMethod
 
         if (response.success === true) {
-          setMatchesData(response.data.data)
+          setMatchesData(response.data)
         } else {
-          setError(response.message || 'Cannot get matches info')
+          setError(
+            response.error?.clientMessage ||
+              response.message ||
+              'Beklenmeyen Bir Hata Oluştu.'
+          )
         }
-      } catch (error) {
-        console.error('Match error:', error.message)
-        setError('Request error')
+      } catch (requestError) {
+        setError(
+          requestError.clientMessage || 'Beklenmeyen Bir Hata Oluştu.'
+        )
       } finally {
         setLoading(false)
       }
     }
 
     fetchMatchesData()
+    // The parent deliberately passes a single in-flight request for this mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   if (loading) {
@@ -59,24 +66,30 @@ function MatchesAll({ fetchDataMethod, isGroupBy }) {
       <div className="flex flex-col space-y-4">
         {matchesData.length === 0 ? (
           <div className="flex justify-center items-center h-16 bg-background-theme bg-cover bg-center rounded-xl">
-            <h1 className="text-lg md:text-xl font-medium">Henüz Maç Yok</h1>
+            <h1 className="text-lg md:text-xl font-medium">
+              Henüz bir maçın yok
+            </h1>
           </div>
         ) : (
           matchesData.map((match) => (
             <div
-              key={match._id}
+              key={match.id}
               className="flex h-32 bg-background-theme bg-cover line-clamp-1 truncate bg-center rounded-xl cursor-pointer"
-              onClick={() => navigate(`/matches/${match._id}`)}
+              onClick={() =>
+                navigate(
+                  `/matches/${match.id}?groupId=${encodeURIComponent(match.groupId)}`
+                )
+              }
             >
               <div className="flex items-center mx-5 md:mx-10 min-w-16">
                 <img className="object-fit h-20" src={real_madrid} />
               </div>
               <div className="flex flex-col justify-center space-y-1 min-w-0 ">
                 <h1 className="text-lg md:text-xl font-medium truncate">
-                  {formatDateAndTime(match.matchDate)}
+                  {formatDateAndTime(match.scheduledAt)}
                 </h1>
                 <h3 className="text-lg font-medium text-gray-300 truncate">
-                  {match.location}
+                  {match.name}
                 </h3>
               </div>
             </div>

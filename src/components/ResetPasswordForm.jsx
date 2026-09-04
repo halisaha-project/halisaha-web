@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { PiPasswordBold } from 'react-icons/pi'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { resetPassword } from '../api/otpApi'

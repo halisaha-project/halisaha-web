@@ -1,4 +1,3 @@
-import React from 'react'
 import VotingForm from '../components/VotingForm'
 
 function Voting() {

@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { MdError } from 'react-icons/md'
 import { verifyOtp } from '../api/otpApi'
 import { confirmMail } from '../utils/auth'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-const OTP = () => {
+const Otp = () => {
     const location = useLocation()
     const navigate = useNavigate()
     const [otp, setOtp] = useState('')
@@ -90,4 +90,4 @@ const OTP = () => {
       )
     }
 
-export default OTP
+export default Otp

@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   getGroupDetail,
-  createGroupInvitationLink,
+  createGroupInvitation,
   deleteGroup,
 } from '../api/groupApi'
 import { CgSpinner } from 'react-icons/cg'
@@ -11,6 +11,7 @@ import { FaBars } from 'react-icons/fa'
 import real_madrid from '/real_madrid.png'
 import MatchesAll from '../components/MatchesAll'
 import { getMatchesByGroupId } from '../api/matchApi'
+import { useAuth } from '../context/authContext'
 
 function GroupInfo() {
   const [groupsDetailData, setGroupsDetailData] = useState(null)
@@ -18,45 +19,75 @@ function GroupInfo() {
   const [isAdmin, setIsAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [showInviteCode, setShowInviteCode] = useState(false)
+  const [showInviteForm, setShowInviteForm] = useState(false)
+  const [inviteEmail, setInviteEmail] = useState('')
+  const [inviteError, setInviteError] = useState(null)
+  const [inviteSuccess, setInviteSuccess] = useState(null)
+  const [inviting, setInviting] = useState(false)
   const [showDeleteButton, setShowDeleteButton] = useState(false)
-  const [inviteCode, setInviteCode] = useState('')
   const navigate = useNavigate()
   const { id } = useParams()
-  const user = JSON.parse(localStorage.getItem('user'))
+  const { user } = useAuth()
 
   useEffect(() => {
     const fetchGroupsData = async () => {
-      const response = await getGroupDetail(id)
+      setLoading(true)
+      setError(null)
 
-      if (response.success === true) {
-        setGroupsDetailData(response.data.data)
+      try {
+        const response = await getGroupDetail(id)
 
-        const userPlayerData = response.data.data.members.filter(
-          (member) => member.user._id === user.sub
+        if (response.success === true) {
+          const group = response.data
+          setGroupsDetailData(group)
+          setPlayerUser(
+            group.members.find((member) => member.userId === user.id) || null
+          )
+          setIsAdmin(group.ownerId === user.id)
+        } else {
+          setError(
+            response.error?.clientMessage ||
+              response.message ||
+              'Beklenmeyen Bir Hata Oluştu.'
+          )
+        }
+      } catch (requestError) {
+        setError(
+          requestError.clientMessage || 'Beklenmeyen Bir Hata Oluştu.'
         )
-        setPlayerUser(userPlayerData[0])
-        setIsAdmin(response.data.data.createdBy._id === user.sub)
-      } else if (response.success === false) {
-        setError(response.message)
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
 
     fetchGroupsData()
-  }, [])
+  }, [id, user.id])
 
-  const handleCreateInvite = async () => {
+  const handleCreateInvite = async (event) => {
+    event.preventDefault()
+    setInviteError(null)
+    setInviteSuccess(null)
+    setInviting(true)
+
     try {
-      const response = await createGroupInvitationLink(id)
+      const response = await createGroupInvitation(id, inviteEmail)
       if (response.success === true) {
-        setInviteCode(response.data.data.token)
-        setShowInviteCode(!showInviteCode)
+        setInviteEmail('')
+        setShowInviteForm(false)
+        setInviteSuccess('Davet başarıyla gönderildi.')
       } else {
-        setError(response.message)
+        setInviteError(
+          response.error?.clientMessage ||
+            response.message ||
+            'Beklenmeyen Bir Hata Oluştu.'
+        )
       }
-    } catch (error) {
-      setError('Error creating invitation link')
+    } catch (requestError) {
+      setInviteError(
+        requestError.clientMessage || 'Beklenmeyen Bir Hata Oluştu.'
+      )
+    } finally {
+      setInviting(false)
     }
   }
 
@@ -93,12 +124,14 @@ function GroupInfo() {
           </div>
           <div className="flex flex-col justify-center space-y-1 min-w-0">
             <h1 className="text-lg md:text-xl font-medium truncate">
-              {groupsDetailData.groupName}
+              {groupsDetailData.name}
             </h1>
-            <h3 className="text-lg font-medium text-gray-300 truncate">
-              #{playerUser.shirtNumber} - {playerUser.mainPosition.abbreviation}{' '}
-              - {playerUser.altPosition.abbreviation}
-            </h3>
+            {playerUser && (
+              <h3 className="text-lg font-medium text-gray-300 truncate">
+                #{playerUser.shirtNumber} - {playerUser.mainPosition} -{' '}
+                {playerUser.altPosition}
+              </h3>
+            )}
           </div>
         </div>
 
@@ -113,12 +146,19 @@ function GroupInfo() {
               </div>
             )}
 
-            <div
-              className="px-4 py-2 w-full md:w-1/2 text-center sm:min-w-[150px] border-white border rounded-lg hover:cursor-pointer"
-              onClick={handleCreateInvite}
-            >
-              {showInviteCode ? inviteCode : 'Davet Et'}
-            </div>
+            {isAdmin && (
+              <button
+                type="button"
+                className="px-4 py-2 w-full md:w-1/2 text-center sm:min-w-[150px] border-white border rounded-lg hover:cursor-pointer"
+                onClick={() => {
+                  setShowInviteForm(!showInviteForm)
+                  setInviteError(null)
+                  setInviteSuccess(null)
+                }}
+              >
+                Davet Et
+              </button>
+            )}
           </div>
 
           {isAdmin && (
@@ -131,6 +171,38 @@ function GroupInfo() {
           )}
         </div>
       </div>
+      {showInviteForm && (
+        <form
+          onSubmit={handleCreateInvite}
+          className="flex flex-col sm:flex-row gap-2 mt-4 px-6 md:justify-end md:pr-8"
+        >
+          <input
+            type="email"
+            value={inviteEmail}
+            onChange={(event) => setInviteEmail(event.target.value)}
+            placeholder="E-posta adresi"
+            className="px-3 py-2 custom-input-field"
+            required
+          />
+          <button
+            type="submit"
+            disabled={inviting}
+            className="px-4 py-2 border-white border rounded-lg disabled:opacity-50"
+          >
+            {inviting ? 'Gönderiliyor...' : 'Daveti Gönder'}
+          </button>
+        </form>
+      )}
+      {inviteError && (
+        <p className="text-red-500 mt-2 px-6 md:text-right md:pr-8">
+          {inviteError}
+        </p>
+      )}
+      {inviteSuccess && (
+        <p className="text-green-500 mt-2 px-6 md:text-right md:pr-8">
+          {inviteSuccess}
+        </p>
+      )}
       <div>
         {showDeleteButton && (
           <div className="flex justify-center md:justify-end mt-4 md:pr-8">
@@ -157,7 +229,7 @@ function GroupInfo() {
           <div className="grid md:grid-cols-2 gap-4">
             {groupsDetailData.members.map((member) => (
               <div
-                key={member.user._id}
+                key={member.userId}
                 className="flex h-24 md:h-32 bg-background-theme bg-cover line-clamp-1 truncate bg-center rounded-xl cursor-pointer "
               >
                 <div className="flex items-center mx-5 md:mx-10 min-w-16">
@@ -167,11 +239,11 @@ function GroupInfo() {
                 </div>
                 <div className="flex flex-col justify-center space-y-1 min-w-0 ">
                   <h1 className="text-lg md:text-xl font-medium truncate">
-                    {member.user.nameSurname}
+                    {[member.name, member.surname].filter(Boolean).join(' ') ||
+                      'Oyuncu'}
                   </h1>
                   <h3 className="text-lg font-medium text-gray-300 truncate">
-                    {member.mainPosition.abbreviation} -{' '}
-                    {member.altPosition.abbreviation}
+                    {member.mainPosition} - {member.altPosition}
                   </h3>
                 </div>
               </div>

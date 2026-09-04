@@ -1,4 +1,3 @@
-import React from 'react'
 import CreateMatchForm from '../components/CreateMatchForm'
 
 function CreateMatch() {

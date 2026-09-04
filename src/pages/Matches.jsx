@@ -1,4 +1,3 @@
-import React from 'react'
 import MatchesAll from '../components/MatchesAll'
 import { getMatches } from '../api/matchApi'
 

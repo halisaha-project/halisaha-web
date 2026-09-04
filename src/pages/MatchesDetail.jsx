@@ -1,4 +1,3 @@
-import React from 'react'
 import MatchesInfo from '../components/MatchesInfo'
 
 function MatchesDetail() {

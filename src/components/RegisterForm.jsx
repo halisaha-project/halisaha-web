@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { FcGoogle } from 'react-icons/fc'
 import { MdError } from 'react-icons/md'
 import { useNavigate } from 'react-router-dom'
@@ -12,7 +12,6 @@ function RegisterForm() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [emailError, setEmailError] = useState(false);
   const [usernameError, setUsernameError] = useState(false);
-  const [passwordError, setPasswordError] = useState(false);
   const [confirmPasswordError, setConfirmPasswordError] = useState(false);
   const navigate = useNavigate();
 
@@ -21,7 +20,6 @@ function RegisterForm() {
 
     setEmailError(false);
     setUsernameError(false);
-    setPasswordError(false);
     setConfirmPasswordError(false);
 
     if (password !== confirmPassword) {
@@ -37,8 +35,6 @@ function RegisterForm() {
         setEmailError(true);
       } else if (response.message.includes('username')) {
         setUsernameError(true);
-      } else if (response.message.includes('password')) {
-        setPasswordError(true);
       }
     }
   };

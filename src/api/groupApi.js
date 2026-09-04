@@ -1,149 +1,62 @@
-import axios from 'axios'
+import apiClient, { createApiFailure } from './client'
 
 export const getGroups = async () => {
   try {
-    const response = await axios.get(
-      `${import.meta.env.VITE_API_BASE_URL}/groups`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage
-            .getItem('token')
-            .replace(/"/g, '')}`,
-        },
-      }
-    )
+    const response = await apiClient.get('/groups')
 
     if (response.status === 200) {
-      console.log(response.data)
       return { success: true, data: response.data }
     }
   } catch (error) {
-    if (error.response) {
-      console.error('Group error:', error.response.data)
-      return {
-        success: false,
-        message: error.response.data.message || 'Cannot get groups info',
-      }
-    } else if (error.request) {
-      console.error('Group error', error.request)
-      return { success: false, message: 'No response from server' }
-    } else {
-      console.error('Group error', error.message)
-      return { success: false, message: 'Request error' }
-    }
+    return createApiFailure(error, 'Cannot get groups info')
   }
 }
 
 export const getGroupDetail = async (id) => {
   try {
-    const response = await axios.get(
-      `${import.meta.env.VITE_API_BASE_URL}/groups/${id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage
-            .getItem('token')
-            .replace(/"/g, '')}`,
-        },
-      }
-    )
+    const response = await apiClient.get(`/groups/${id}`)
 
     if (response.status === 200) {
-      console.log(response.data)
       return { success: true, data: response.data }
     }
   } catch (error) {
-    if (error.response) {
-      console.error('Group error:', error.response.data)
-      return {
-        success: false,
-        message: error.response.data.message || 'Cannot get groups info',
-      }
-    } else if (error.request) {
-      console.error('Group error', error.request)
-      return { success: false, message: 'No response from server' }
-    } else {
-      console.error('Group error', error.message)
-      return { success: false, message: 'Request error' }
-    }
+    return createApiFailure(error, 'Cannot get groups info')
   }
 }
 
 export const joinGroup = async (
-  invitationToken,
+  token,
   mainPosition,
   altPosition,
   shirtNumber
 ) => {
   try {
-    const response = await axios.post(
-      `${import.meta.env.VITE_API_BASE_URL}/groups/join`,
-      {
-        invitationToken,
-        mainPosition,
-        altPosition,
-        shirtNumber,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage
-            .getItem('token')
-            .replace(/"/g, '')}`,
-        },
-      }
-    )
+    const response = await apiClient.post('/groups/invitations/accept', {
+      token: token.trim(),
+      mainPosition,
+      altPosition,
+      shirtNumber: Number(shirtNumber),
+    })
 
     if (response.status === 201) {
-      console.log(response.data)
       return { success: true, data: response.data }
     }
   } catch (error) {
-    if (error.response) {
-      console.error('Join Group error:', error.response.data)
-      return {
-        success: false,
-        message: error.response.data.message || 'Failed to join the group',
-      }
-    } else if (error.request) {
-      console.error('Join Group error', error.request)
-      return { success: false, message: 'No response from server' }
-    } else {
-      console.error('Join Group error', error.message)
-      return { success: false, message: 'Request error' }
-    }
+    return createApiFailure(error, 'Failed to join the group')
   }
 }
 
-export const createGroupInvitationLink = async (groupId) => {
+export const createGroupInvitation = async (groupId, email) => {
   try {
-    const response = await axios.post(
-      `${import.meta.env.VITE_API_BASE_URL}/groups/invite`,
-      { groupId },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage
-            .getItem('token')
-            .replace(/"/g, '')}`,
-        },
-      }
-    )
-    if (response.status === 200 || response.status === 201) {
+    const response = await apiClient.post(`/groups/${groupId}/invitations`, {
+      email: email.trim(),
+    })
+
+    if (response.status === 201) {
       return { success: true, data: response.data }
     }
   } catch (error) {
-    console.log('error')
-    if (error.response) {
-      console.error('Invite link error:', error.response.data)
-      return {
-        success: false,
-        message: error.response.data.message || 'Cannot create invite link',
-      }
-    } else if (error.request) {
-      console.error('Invite link error', error.request)
-      return { success: false, message: 'No response from server' }
-    } else {
-      console.error('Invite link error', error.message)
-      return { success: false, message: 'Request error' }
-    }
+    return createApiFailure(error, 'Cannot create invitation')
   }
 }
 
@@ -154,74 +67,29 @@ export const createGroup = async (
   shirtNumber
 ) => {
   try {
-    const response = await axios.post(
-      `${import.meta.env.VITE_API_BASE_URL}/groups`,
-      {
-        groupName,
-        mainPosition,
-        altPosition,
-        shirtNumber,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage
-            .getItem('token')
-            .replace(/"/g, '')}`,
-        },
-      }
-    )
+    const response = await apiClient.post('/groups', {
+      groupName: groupName.trim(),
+      mainPosition,
+      altPosition,
+      shirtNumber: Number(shirtNumber),
+    })
 
     if (response.status === 201) {
-      console.log(response.data)
       return { success: true, data: response.data }
     }
   } catch (error) {
-    if (error.response) {
-      console.error('Create Group error:', error.response.data)
-      return {
-        success: false,
-        message: error.response.data.message || 'Failed to create a group',
-      }
-    } else if (error.request) {
-      console.error('Create Group error', error.request)
-      return { success: false, message: 'No response from server' }
-    } else {
-      console.error('Create Group error', error.message)
-      return { success: false, message: 'Request error' }
-    }
+    return createApiFailure(error, 'Failed to create a group')
   }
 }
 
 export const deleteGroup = async (id) => {
   try {
-    const response = await axios.delete(
-      `${import.meta.env.VITE_API_BASE_URL}/groups/${id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage
-            .getItem('token')
-            .replace(/"/g, '')}`,
-        },
-      }
-    )
+    const response = await apiClient.delete(`/groups/${id}`)
 
     if (response.status === 200) {
-      console.log(response.data)
       return { success: true, data: response.data }
     }
   } catch (error) {
-    if (error.response) {
-      console.error('Delete Group error:', error.response.data)
-      return {
-        success: false,
-        message: error.response.data.message || 'Failed to delete the group',
-      }
-    } else if (error.request) {
-      console.error('Delete Group error', error.request)
-      return { success: false, message: 'No response from server' }
-    } else {
-      console.error('Delete Group error', error.message)
-      return { success: false, message: 'Request error' }
-    }
+    return createApiFailure(error, 'Failed to delete the group')
   }
 }

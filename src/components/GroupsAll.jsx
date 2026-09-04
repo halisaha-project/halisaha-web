@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { createGroup, getGroups, joinGroup } from '../api/groupApi'
 import { CgSpinner } from 'react-icons/cg'
 import { FaUsers } from 'react-icons/fa6'
 import real_madrid from '/real_madrid.png'
 import { useNavigate } from 'react-router-dom'
-
-const mainPositions = ['GK', 'DEF', 'MID', 'FWD']
+import { getPositions } from '../api/positionApi'
 
 function GroupsAll() {
   const [groupsData, setGroupsData] = useState(null)
@@ -18,8 +17,8 @@ function GroupsAll() {
   const [mainPosition, setMainPosition] = useState('')
   const [altPosition, setAltPosition] = useState('')
   const [shirtNumber, setShirtNumber] = useState('')
-  const [filteredSubPositions, setFilteredSubPositions] =
-    useState(mainPositions)
+  const [positions, setPositions] = useState([])
+  const [filteredSubPositions, setFilteredSubPositions] = useState([])
   const [formError, setFormError] = useState('')
   const navigate = useNavigate()
 
@@ -28,7 +27,7 @@ function GroupsAll() {
       const response = await getGroups()
 
       if (response.success === true) {
-        setGroupsData(response.data.data)
+        setGroupsData(response.data)
       } else if (response.success === false) {
         setError(response.message)
       }
@@ -36,11 +35,24 @@ function GroupsAll() {
     }
 
     fetchGroupsData()
+
+    const fetchPositions = async () => {
+      const response = await getPositions()
+      if (response.success) {
+        setPositions(response.data)
+      } else {
+        setFormError(response.error?.clientMessage || response.message)
+      }
+    }
+
+    fetchPositions()
   }, [])
 
   useEffect(() => {
-    setFilteredSubPositions(mainPositions.filter((pos) => pos !== mainPosition))
-  }, [mainPosition])
+    setFilteredSubPositions(
+      positions.filter((position) => position.abbreviation !== mainPosition)
+    )
+  }, [mainPosition, positions])
 
   const handleJoinTeam = async (e) => {
     e.preventDefault()
@@ -57,7 +69,7 @@ function GroupsAll() {
       if (response.success) {
         const updatedGroupsResponse = await getGroups()
         if (updatedGroupsResponse.success === true) {
-          setGroupsData(updatedGroupsResponse.data.data)
+          setGroupsData(updatedGroupsResponse.data)
         } else if (updatedGroupsResponse.success === false) {
           setError(updatedGroupsResponse.message)
         }
@@ -68,12 +80,14 @@ function GroupsAll() {
         setShirtNumber('')
         setShowJoinForm(false)
       } else {
-        console.error('Join group error:', response.message)
-        setFormError(response.message || 'Failed to join the group')
+        setFormError(
+          response.error?.clientMessage ||
+            response.message ||
+            'Beklenmeyen Bir Hata Oluştu.'
+        )
       }
-    } catch (error) {
-      console.error('Join group error:', error.message)
-      setFormError('Failed to join the group')
+    } catch {
+      setFormError('Beklenmeyen Bir Hata Oluştu.')
     }
   }
   const handleCreateTeam = async (e) => {
@@ -91,7 +105,7 @@ function GroupsAll() {
       if (response.success) {
         const updatedGroupsResponse = await getGroups()
         if (updatedGroupsResponse.success === true) {
-          setGroupsData(updatedGroupsResponse.data.data)
+          setGroupsData(updatedGroupsResponse.data)
         } else if (updatedGroupsResponse.success === false) {
           setError(updatedGroupsResponse.message)
         }
@@ -100,14 +114,16 @@ function GroupsAll() {
         setMainPosition('')
         setAltPosition('')
         setShirtNumber('')
-        setShowJoinForm(false)
+        setShowCreateForm(false)
       } else {
-        console.error('Create group error:', response.message)
-        setFormError(response.message || 'Failed to create the group')
+        setFormError(
+          response.error?.clientMessage ||
+            response.message ||
+            'Beklenmeyen Bir Hata Oluştu.'
+        )
       }
-    } catch (error) {
-      console.error('Create group error:', error.message)
-      setFormError('Failed to create a group')
+    } catch {
+      setFormError('Beklenmeyen Bir Hata Oluştu.')
     }
   }
 
@@ -181,9 +197,9 @@ function GroupsAll() {
                 required
               >
                 <option value="">Seçiniz</option>
-                {mainPositions.map((position, index) => (
-                  <option key={index} value={position}>
-                    {position}
+                {positions.map((position) => (
+                  <option key={position.id} value={position.abbreviation}>
+                    {position.name}
                   </option>
                 ))}
               </select>
@@ -199,9 +215,9 @@ function GroupsAll() {
                 required
               >
                 <option value="">Seçiniz</option>
-                {filteredSubPositions.map((position, index) => (
-                  <option key={index} value={position}>
-                    {position}
+                {filteredSubPositions.map((position) => (
+                  <option key={position.id} value={position.abbreviation}>
+                    {position.name}
                   </option>
                 ))}
               </select>
@@ -209,7 +225,9 @@ function GroupsAll() {
             <div>
               <label className=" text-sm font-medium">Forma Numarası</label>
               <input
-                type="text"
+                type="number"
+                min="1"
+                max="99"
                 value={shirtNumber}
                 onChange={(e) => setShirtNumber(e.target.value)}
                 className="mt-1  w-full px-3 py-2 custom-input-field"
@@ -255,9 +273,9 @@ function GroupsAll() {
                 required
               >
                 <option value="">Seçiniz</option>
-                {mainPositions.map((position, index) => (
-                  <option key={index} value={position}>
-                    {position}
+                {positions.map((position) => (
+                  <option key={position.id} value={position.abbreviation}>
+                    {position.name}
                   </option>
                 ))}
               </select>
@@ -273,9 +291,9 @@ function GroupsAll() {
                 required
               >
                 <option value="">Seçiniz</option>
-                {filteredSubPositions.map((position, index) => (
-                  <option key={index} value={position}>
-                    {position}
+                {filteredSubPositions.map((position) => (
+                  <option key={position.id} value={position.abbreviation}>
+                    {position.name}
                   </option>
                 ))}
               </select>
@@ -283,7 +301,9 @@ function GroupsAll() {
             <div>
               <label className=" text-sm font-medium">Forma Numarası</label>
               <input
-                type="text"
+                type="number"
+                min="1"
+                max="99"
                 value={shirtNumber}
                 onChange={(e) => setShirtNumber(e.target.value)}
                 className="mt-1  w-full px-3 py-2 custom-input-field"
@@ -305,18 +325,22 @@ function GroupsAll() {
 
       <div className="flex flex-col space-y-4 mb-8">
         {groupsData.length === 0 ? (
-          <div className="flex justify-center items-center h-32 bg-background-theme bg-cover bg-center rounded-xl">
+          <div className="flex flex-col justify-center items-center h-32 bg-background-theme bg-cover bg-center rounded-xl text-center px-4">
             <h1 className="text-lg md:text-xl font-medium">
-              Henüz Takımınız Yok
+              Henüz bir takımın yok
             </h1>
+            <p className="mt-2 text-sm text-gray-300">
+              Yeni bir takım oluşturabilir veya bir daveti kabul ederek takıma
+              katılabilirsin.
+            </p>
           </div>
         ) : (
           groupsData.map((group) => (
             <div
-              key={group._id}
+              key={group.id}
               className="flex h-32 bg-background-theme bg-cover line-clamp-1 truncate bg-center rounded-xl cursor-pointer "
               onClick={() => {
-                navigate(`/teams/${group._id}`)
+                navigate(`/teams/${group.id}`)
               }}
             >
               <div className="flex items-center mx-5 md:mx-10 min-w-16">
@@ -324,13 +348,8 @@ function GroupsAll() {
               </div>
               <div className="flex flex-col justify-center space-y-1 min-w-0 ">
                 <h1 className="text-lg md:text-xl font-medium truncate">
-                  {group.groupName}
+                  {group.name}
                 </h1>
-                <h3 className="text-lg font-medium text-gray-300 truncate">
-                  #{group.members[0].shirtNumber} -{' '}
-                  {group.members[0].mainPosition.abbreviation} -{' '}
-                  {group.members[0].altPosition.abbreviation}
-                </h3>
               </div>
             </div>
           ))

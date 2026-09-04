@@ -1,6 +1,6 @@
-import { React, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { logout } from '../utils/auth'
+import { useAuth } from '../context/authContext'
 import { FaBars } from 'react-icons/fa'
 import { GiSoccerBall } from 'react-icons/gi'
 
@@ -8,6 +8,7 @@ function Header() {
   const navigate = useNavigate()
   const location = useLocation()
   const [isOpen, setIsOpen] = useState(false)
+  const { logout } = useAuth()
 
   if (
     [
@@ -23,8 +24,8 @@ function Header() {
     return null
   }
 
-  const handleLogout = () => {
-    logout()
+  const handleLogout = async () => {
+    await logout()
     navigate('/login')
   }
 

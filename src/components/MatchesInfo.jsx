@@ -1,221 +1,100 @@
-import React, { useEffect, useState } from 'react'
-import { getMatchDetail } from '../api/matchApi'
+import { useEffect, useState } from 'react'
 import { CgSpinner } from 'react-icons/cg'
-import { formatDateAndTime } from '../utils/dateUtils'
-import { useParams, useNavigate } from 'react-router-dom'
 import { FaFutbol } from 'react-icons/fa6'
-import real_madrid from '/real_madrid.png'
+import { useParams, useSearchParams } from 'react-router-dom'
+import { getMatchDetail } from '../api/matchApi'
+import { formatDateAndTime } from '../utils/dateUtils'
+import FootballPitch from './FootballPitch'
+
+const fallbackError = 'Beklenmeyen Bir Hata Oluştu.'
 
 function MatchesInfo() {
   const [matchDetail, setMatchDetail] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [playerUser, setPlayerUser] = useState(null)
-  const { id } = useParams()
-  const user = JSON.parse(localStorage.getItem('user'))
-  const navigate = useNavigate()
+  const { id: matchId } = useParams()
+  const [searchParams] = useSearchParams()
+  const groupId = searchParams.get('groupId')
 
   useEffect(() => {
     const fetchMatchDetail = async () => {
-      try {
-        const response = await getMatchDetail(id)
-        if (response.success === true) {
-          setMatchDetail(response.data.data)
+      setLoading(true)
+      setError(null)
 
-          const userPlayerData = response.data.data.lineup.homeTeam.filter(
-            (player) => player.user.user._id === user.sub
+      if (!groupId) {
+        setError('Maçın takım bilgisi bulunamadı.')
+        setLoading(false)
+        return
+      }
+
+      try {
+        const response = await getMatchDetail(groupId, matchId)
+
+        if (response.success) {
+          setMatchDetail(response.data)
+        } else {
+          setError(
+            response.error?.clientMessage || response.message || fallbackError
           )
-          setPlayerUser(userPlayerData[0])
-          console.log(playerUser)
-        } else if (response.success === false) {
-          setError(response.message)
         }
-      } catch (error) {
-        console.error('Error fetching match detail:', error)
-        setError('Request error')
+      } catch (requestError) {
+        setError(requestError.clientMessage || fallbackError)
       } finally {
         setLoading(false)
       }
     }
 
     fetchMatchDetail()
-  }, [id])
+  }, [groupId, matchId])
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex h-screen items-center justify-center">
         <CgSpinner className="animate-spin text-5xl" />
       </div>
     )
   }
 
   if (error) {
-    return <p className="text-center mt-4 text-red-500">Hata: {error}</p>
+    return <p className="mt-4 text-center text-red-500">Hata: {error}</p>
   }
 
-  const homeTeamPlayers = matchDetail.lineup.homeTeam || []
-
-  console.log(homeTeamPlayers)
-  const awayTeamPlayers = matchDetail.lineup.awayTeam || []
-
-  const organizePlayersByPosition = (players) => {
-    const positions = {
-      FWD: [], // Forvet
-      MID: [], // Orta Saha
-      DEF: [], // Defans
-      GK: [], // Kaleci
-    }
-
-    players.forEach((player) => {
-      const { abbreviation } = player.position
-      if (positions[abbreviation]) {
-        positions[abbreviation].push(player)
-      }
-    })
-
-    return positions
-  }
-
-  const homePlayersByPosition = organizePlayersByPosition(homeTeamPlayers)
-  const awayPlayersByPosition = organizePlayersByPosition(awayTeamPlayers)
+  const homePlayers = Array.isArray(matchDetail?.homeTeam?.players)
+    ? matchDetail.homeTeam.players
+    : []
+  const awayPlayers = Array.isArray(matchDetail?.awayTeam?.players)
+    ? matchDetail.awayTeam.players
+    : []
+  const teamsGenerated = homePlayers.length > 0 || awayPlayers.length > 0
 
   return (
     <div className="pt-8">
-      <div className="flex justify-between">
-        <div className="flex">
-          <div className="flex items-center mx-4 md:mx-10 min-w-14">
-            <img
-              className="object-fit h-20"
-              src={real_madrid}
-              alt="Real Madrid Logo"
-            />
-          </div>
-          <div className="flex flex-col justify-center space-y-1 min-w-0">
-            <h1 className="text-lg md:text-xl font-medium truncate">
-              {formatDateAndTime(matchDetail.matchDate)}
-            </h1>
-            <h3 className="text-lg font-medium text-gray-300 truncate">
-              {matchDetail.location}
-            </h3>
-          </div>
-        </div>
-        {playerUser && !playerUser.hasVoted && (
-          <div className="flex items-center pr-16">
-            <button
-              className="px-4 py-2 text-center sm:min-w-[150px] border-white border rounded-lg hover:cursor-pointer"
-              onClick={() => navigate('voting')}
-            >
-              Puan Ver
-            </button>
-          </div>
-        )}
-      </div>
-      <div className="py-4 px-8">
-        <div className="space-y-4">
-          <div className="flex items-center space-x-2">
-            <h1 className="text-lg">Oyuncular</h1>
-            <FaFutbol />
-            <p>{homeTeamPlayers.length + awayTeamPlayers.length}</p>
-          </div>
-          <div className="flex flex-col md:flex-row items-center md:items-start">
-            <div className="w-full md:w-4/5 order-2 md:order-1 mt-4 md:mt-0">
-              <div className="grid sm:grid-cols-1 md:grid-cols-1 xl:grid-cols-2 gap-4 px-4">
-                {homeTeamPlayers
-                  .sort((a, b) => b.rating - a.rating)
-                  .map((player) => (
-                    <div
-                      key={player.user.user._id}
-                      className="flex h-24 md:h-24 bg-background-theme bg-cover line-clamp-1 truncate bg-center rounded-xl cursor-pointer "
-                    >
-                      <div className="flex items-center mx-5 min-w-14">
-                        <div
-                          className={`relative text-center content-center h-14 w-14 rounded-full ${
-                            player.rating >= 7
-                              ? 'bg-green-600'
-                              : player.rating >= 5
-                              ? 'bg-yellow-600'
-                              : 'bg-red-600'
-                          }`}
-                        >
-                          <p className="font-medium md:text-lg">
-                            {player.rating ? player.rating : '-'}
-                          </p>
-                        </div>
-                      </div>
+      <header className="px-4 md:px-8">
+        <h1 className="text-xl font-semibold md:text-2xl">
+          {matchDetail.name}
+        </h1>
+        <p className="mt-1 text-lg text-gray-300">
+          {formatDateAndTime(matchDetail.scheduledAt)}
+        </p>
+      </header>
 
-                      <div className="flex flex-col justify-center space-y-1 min-w-0 ">
-                        <h1 className="text-lg md:text-xl font-medium truncate">
-                          {player.user.user.nameSurname}
-                        </h1>
-                        <h3 className="text-lg font-medium text-gray-300 truncate">
-                          #{player.user.shirtNumber} -{' '}
-                          {player.position.abbreviation}
-                        </h3>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            </div>
-            <div className="flex justify-center md:w-1/2 order-1 md:order-2 ">
-              <div className="h-[500px] w-[360px] bg-green-soccer-field-theme bg-cover bg-center bg-no-repeat ">
-                <div className="pt-[100px]">
-                  <div className="flex items-center justify-around h-[100px]  ">
-                    {homePlayersByPosition.FWD.map((player) => {
-                      return (
-                        <div key={'fwd' + player.user.shirtNumber} className="">
-                          <div className="relative text-center content-center bg-gray-700 h-12 w-12 md:h-12 md:w-12 rounded-full border-gray-400 border-4">
-                            <p className="font-semibold md:text-md">
-                              {player.user.shirtNumber}
-                            </p>
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                  <div className="flex items-center justify-around h-[100px]  ">
-                    {homePlayersByPosition.MID.map((player) => {
-                      return (
-                        <div key={'mid' + player.user.shirtNumber} className="">
-                          <div className="relative text-center content-center bg-gray-700 h-12 w-12 md:h-12 md:w-12 rounded-full border-gray-400 border-4">
-                            <p className="font-semibold md:text-md">
-                              {player.user.shirtNumber}
-                            </p>
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                  <div className="flex items-center justify-around h-[100px]  ">
-                    {homePlayersByPosition.DEF.map((player) => {
-                      return (
-                        <div key={'def' + player.user.shirtNumber} className="">
-                          <div className="relative text-center content-center bg-gray-700 h-12 w-12 md:h-12 md:w-12 rounded-full border-gray-400 border-4">
-                            <p className="font-semibold md:text-md">
-                              {player.user.shirtNumber}
-                            </p>
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                  <div className="flex items-center justify-around h-[100px] ">
-                    {homePlayersByPosition.GK.map((player) => {
-                      return (
-                        <div key={player} className="">
-                          <div className="relative text-center content-center bg-gray-700 h-12 w-12 md:h-12 md:w-12 rounded-full border-gray-400 border-4">
-                            <p className="font-semibold md:text-md">
-                              {player.user.shirtNumber}
-                            </p>
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+      <div className="px-4 py-6 md:px-8">
+        <div className="mb-4 flex items-center gap-2">
+          <h2 className="text-lg">Oyuncular</h2>
+          <FaFutbol />
+          <span>{homePlayers.length + awayPlayers.length}</span>
         </div>
+
+        {teamsGenerated ? (
+          <div className="grid justify-items-center gap-8 lg:grid-cols-2 lg:items-start">
+            <FootballPitch teamName="Ev Sahibi" players={homePlayers} />
+            <FootballPitch teamName="Deplasman" players={awayPlayers} />
+          </div>
+        ) : (
+          <p className="rounded-xl bg-background-theme bg-cover bg-center p-6 text-center text-gray-300">
+            Takımlar henüz oluşturulmadı.
+          </p>
+        )}
       </div>
     </div>
   )

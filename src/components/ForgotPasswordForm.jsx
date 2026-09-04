@@ -1,4 +1,3 @@
-import React from 'react'
 import { MdError } from 'react-icons/md'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -7,10 +6,13 @@ import { sendOtp } from '../api/otpApi'
 function ForgotPasswordForm() {
   const [email, setEmail] = useState('')
   const [emailError, setEmailError] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
   const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setEmailError(false)
+    setErrorMessage('')
 
     // E-posta adresi formatını kontrol et
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -69,7 +71,7 @@ function ForgotPasswordForm() {
               </div>
               {emailError && (
                 <p className=" text-xs text-red-600 mt-2" id="email-error">
-                  Lütfen geçerli bir e-posta adresi girin
+                  {errorMessage || 'Lütfen geçerli bir e-posta adresi girin'}
                 </p>
               )}
             </div>
