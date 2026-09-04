@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react'
 import { getGroupDetail } from '../api/groupApi'
 import { CgSpinner } from 'react-icons/cg'
 import { useNavigate, useParams } from 'react-router-dom'
-import { FaUsers } from 'react-icons/fa'
 import {
   createMatch,
   generateMatchTeams,
   updateMatchParticipants,
 } from '../api/matchApi'
+import MatchPlayerSelector from './MatchPlayerSelector'
 
 const fallbackError = 'Beklenmeyen Bir Hata Oluştu.'
 const emptyFormation = { GK: 0, DEF: 0, MID: 0, FWD: 0 }
@@ -54,14 +54,6 @@ function CreateMatchForm() {
 
     fetchGroup()
   }, [groupId])
-
-  const handleMemberClick = (userId) => {
-    setActiveMembers((currentMembers) =>
-      currentMembers.includes(userId)
-        ? currentMembers.filter((memberId) => memberId !== userId)
-        : [...currentMembers, userId]
-    )
-  }
 
   const handleFormationChange = (position, value) => {
     setFormation((currentFormation) => ({
@@ -224,48 +216,12 @@ function CreateMatchForm() {
   return (
     <div className="flex flex-col md:flex-row gap-8 space-y-4 px-2 md:px-8 mb-4">
       <div className="w-full md:w-1/2">
-        <div className="flex items-center space-x-2 text-xl">
-          <h1>Oyuncular</h1>
-          <FaUsers />
-          <p>
-            {activeMembers.length}/{group.members.length}
-          </p>
-        </div>
-
-        {group.members.length === 0 ? (
-          <p className="mt-4 text-gray-300">Bu takımda henüz oyuncu yok.</p>
-        ) : (
-          <div className="grid gap-4">
-            {group.members.map((member) => (
-              <div
-                key={member.userId}
-                onClick={() => handleMemberClick(member.userId)}
-                className={`flex h-24 md:h-28 bg-background-theme bg-cover line-clamp-1 truncate bg-center rounded-xl cursor-pointer ${
-                  activeMembers.includes(member.userId)
-                    ? 'border-2 border-green-500'
-                    : ''
-                }`}
-              >
-                <div className="flex items-center mx-5 md:mx-10 min-w-16">
-                  <div className="relative text-center content-center bg-gray-600 h-14 w-14 md:h-16 md:w-16 rounded-full">
-                    <p className="font-medium md:text-lg">
-                      #{member.shirtNumber ?? '-'}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex flex-col justify-center space-y-1 min-w-0">
-                  <h1 className="text-lg md:text-xl font-medium truncate">
-                    {[member.name, member.surname].filter(Boolean).join(' ') ||
-                      'Oyuncu'}
-                  </h1>
-                  <h3 className="text-lg font-medium text-gray-300 truncate">
-                    {member.mainPosition || '-'} - {member.altPosition || '-'}
-                  </h3>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        <MatchPlayerSelector
+          members={group.members}
+          selectedUserIds={activeMembers}
+          onSelectionChange={setActiveMembers}
+          disabled={submitting}
+        />
       </div>
 
       <div className="w-full md:w-1/2 space-y-4">

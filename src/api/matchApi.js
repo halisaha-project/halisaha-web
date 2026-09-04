@@ -86,3 +86,18 @@ export const generateMatchTeams = async (groupId, matchId, formation) => {
     return createApiFailure(error, 'Cannot generate match teams')
   }
 }
+
+export const completeMatch = async (groupId, matchId) => {
+  try {
+    const response = await apiClient.patch(
+      `/groups/${groupId}/matches/${matchId}/status`,
+      { status: 'completed' }
+    )
+
+    if (response.status === 200) {
+      return { success: true, data: response.data }
+    }
+  } catch (error) {
+    return createApiFailure(error, 'Cannot complete match')
+  }
+}

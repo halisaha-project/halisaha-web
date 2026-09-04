@@ -1,197 +1,303 @@
-import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useCallback, useEffect, useState } from 'react'
+import { CgSpinner } from 'react-icons/cg'
+import { IoStar, IoStarOutline } from 'react-icons/io5'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { getMatchDetail } from '../api/matchApi'
-import { vote } from '../api/voteApi'
-import { FaUsers } from 'react-icons/fa'
-import { IoStar, IoStarHalf, IoStarOutline } from 'react-icons/io5'
+import {
+  createMatchVote,
+  getMatchVoteResults,
+} from '../api/voteApi'
 import { useAuth } from '../context/authContext'
 
-const VotingForm = () => {
-  const { id } = useParams()
+const fallbackError = 'Beklenmeyen Bir Hata Oluştu.'
+
+function VotingForm({ match: providedMatch, groupId: providedGroupId }) {
+  const { id: routeMatchId } = useParams()
+  const [searchParams] = useSearchParams()
   const { user } = useAuth()
-  const [matchDetail, setMatchDetail] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const groupId = providedGroupId || searchParams.get('groupId')
+  const matchId = providedMatch?.id || routeMatchId
+  const [match, setMatch] = useState(providedMatch || null)
+  const [loading, setLoading] = useState(!providedMatch)
   const [error, setError] = useState(null)
-  const [ratings, setRatings] = useState({})
-  const [validationError, setValidationError] = useState(null)
-  const navigate = useNavigate()
+  const [scores, setScores] = useState({})
+  const [targetStatuses, setTargetStatuses] = useState({})
+  const [submitting, setSubmitting] = useState(false)
+  const [submissionMessage, setSubmissionMessage] = useState(null)
+  const [results, setResults] = useState([])
+  const [resultsLoading, setResultsLoading] = useState(false)
+  const [resultsError, setResultsError] = useState(null)
 
   useEffect(() => {
-    const fetchMatchDetail = async () => {
+    if (providedMatch) {
+      setMatch(providedMatch)
+      setLoading(false)
+      return
+    }
+
+    const loadMatch = async () => {
+      if (!groupId) {
+        setError('Maçın takım bilgisi bulunamadı.')
+        setLoading(false)
+        return
+      }
+
       try {
-        const response = await getMatchDetail(id)
+        const response = await getMatchDetail(groupId, matchId)
         if (response.success) {
-          setMatchDetail(response.data.data)
+          setMatch(response.data)
         } else {
-          setError(response.message)
+          setError(
+            response.error?.clientMessage || response.message || fallbackError
+          )
         }
-      } catch (error) {
-        console.error('Error fetching match detail:', error)
-        setError('Request error')
+      } catch (requestError) {
+        setError(requestError.clientMessage || fallbackError)
       } finally {
         setLoading(false)
       }
     }
-    fetchMatchDetail()
-  }, [id])
 
-  const handleVote = async () => {
-    const players = [
-      ...(matchDetail?.lineup?.homeTeam || []),
-      ...(matchDetail?.lineup?.awayTeam || []),
-    ].filter((player) => player.user.user._id !== user.id)
+    loadMatch()
+  }, [groupId, matchId, providedMatch])
 
-    for (let player of players) {
-      if (!ratings[player.user.user._id]) {
-        setValidationError(`Oyuncu #${player.user.shirtNumber} oylanmadı!`)
-        return
-      }
-    }
+  const loadResults = useCallback(async () => {
+    if (!groupId || !matchId) return
+
+    setResultsLoading(true)
+    setResultsError(null)
 
     try {
-      const voteData = {
-        matchId: id,
-        votes: [
-          {
-            voterId: user.id,
-            votedUsers: Object.keys(ratings).map((playerId) => ({
-              votedUserId: playerId,
-              rating: ratings[playerId],
-            })),
-          },
-        ],
-      }
-
-      const response = await vote(voteData)
+      const response = await getMatchVoteResults(groupId, matchId)
       if (response.success) {
-        navigate(`/matches/${id}`)
+        setResults(Array.isArray(response.data?.results) ? response.data.results : [])
       } else {
-        setError(response.message)
+        setResultsError(
+          response.error?.clientMessage || response.message || fallbackError
+        )
       }
-    } catch (error) {
-      console.error('Error submitting vote:', error)
-      setError('Request error')
+    } catch (requestError) {
+      setResultsError(requestError.clientMessage || fallbackError)
+    } finally {
+      setResultsLoading(false)
     }
-  }
+  }, [groupId, matchId])
 
-  const handleRatingChange = (playerId, rating) => {
-    setRatings({
-      ...ratings,
-      [playerId]: rating,
-    })
-    setValidationError(null)
-  }
+  useEffect(() => {
+    if (match?.status === 'completed') loadResults()
+  }, [loadResults, match?.status])
 
   if (loading) {
-    return <div>Loading...</div>
+    return (
+      <div className="flex justify-center py-8">
+        <CgSpinner className="animate-spin text-4xl" />
+      </div>
+    )
   }
 
-  if (error) {
-    return <div>Error: {error}</div>
+  if (error) return <p className="text-center text-red-500">{error}</p>
+  if (!match || match.status !== 'completed') return null
+
+  const participants = [
+    ...(match.homeTeam?.players || []),
+    ...(match.awayTeam?.players || []),
+  ]
+  const participantsById = new Map(
+    participants.map((player) => [player.userId, player])
+  )
+  const isParticipant = match.participantUserIds.includes(user.id)
+  const targets = participants.filter((player) => player.userId !== user.id)
+
+  const handleScoreChange = (targetUserId, score) => {
+    setScores((currentScores) => ({ ...currentScores, [targetUserId]: score }))
+    setTargetStatuses((currentStatuses) => ({
+      ...currentStatuses,
+      [targetUserId]: undefined,
+    }))
+    setSubmissionMessage(null)
   }
 
-  const players = [
-    ...(matchDetail?.lineup?.homeTeam || []),
-    ...(matchDetail?.lineup?.awayTeam || []),
-  ].filter((player) => player.user.user._id !== user.sub)
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    if (submitting) return
+
+    const pendingVotes = targets.filter(
+      (player) =>
+        scores[player.userId] &&
+        !['submitted', 'duplicate'].includes(targetStatuses[player.userId]?.type)
+    )
+
+    if (pendingVotes.length === 0) {
+      setSubmissionMessage('Göndermek için en az bir oyuncuya puan verin.')
+      return
+    }
+
+    setSubmitting(true)
+    setSubmissionMessage(null)
+
+    const settledVotes = await Promise.allSettled(
+      pendingVotes.map((player) =>
+        createMatchVote(
+          groupId,
+          matchId,
+          player.userId,
+          scores[player.userId]
+        )
+      )
+    )
+
+    const nextStatuses = { ...targetStatuses }
+    let successCount = 0
+    let failureCount = 0
+
+    settledVotes.forEach((settledVote, index) => {
+      const targetUserId = pendingVotes[index].userId
+      const response =
+        settledVote.status === 'fulfilled' ? settledVote.value : null
+      const normalizedError =
+        response?.error ||
+        (settledVote.status === 'rejected' ? settledVote.reason : null)
+
+      if (response?.success) {
+        nextStatuses[targetUserId] = {
+          type: 'submitted',
+          message: 'Oy gönderildi.',
+        }
+        successCount += 1
+      } else if (normalizedError?.type === 'VOTE_ALREADY_EXISTS') {
+        nextStatuses[targetUserId] = {
+          type: 'duplicate',
+          message: 'Bu oyuncu için daha önce oy kullandınız.',
+        }
+      } else {
+        nextStatuses[targetUserId] = {
+          type: 'error',
+          message:
+            normalizedError?.clientMessage ||
+            response?.message ||
+            fallbackError,
+        }
+        failureCount += 1
+      }
+    })
+
+    setTargetStatuses(nextStatuses)
+    setSubmissionMessage(
+      failureCount > 0
+        ? `${successCount} oy gönderildi, ${failureCount} oy gönderilemedi.`
+        : 'Oylar gönderildi.'
+    )
+    setSubmitting(false)
+    await loadResults()
+  }
 
   return (
-    <div className="flex flex-col md:flex-row gap-8 space-y-4 px-2 md:px-8 mb-4">
-      <div className="w-full">
-        <div className="flex items-center space-x-2 text-xl">
-          <h1 className="">Oyuncular</h1>
-          <FaUsers />
-          <p>{players.length}</p>
-        </div>
+    <section className="mx-4 mb-8 rounded-xl border border-gray-700 p-4 md:mx-8 md:p-6">
+      <h2 className="text-xl font-semibold">Oy Ver</h2>
 
-        <div className="grid gap-4">
-          {players.map((player) => (
-            <div
-              key={player.user.user._id}
-              className="flex flex-col md:flex-row md:justify-between h-32 md:h-28 bg-background-theme bg-cover line-clamp-1 truncate bg-center rounded-xl justify-center"
-            >
-              <div className="flex mt-3 md:m-0">
-                <div className="flex items-center mx-5 md:mx-10 min-w-16">
-                  <div className="relative text-center content-center bg-gray-600 h-14 w-14 md:h-16 md:w-16 rounded-full">
-                    <p className="font-medium md:text-lg">
-                      #{player.user.shirtNumber}
+      {isParticipant ? (
+        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+          {targets.map((player) => {
+            const status = targetStatuses[player.userId]
+            const submitted = ['submitted', 'duplicate'].includes(status?.type)
+
+            return (
+              <div
+                key={player.userId}
+                className="rounded-xl bg-background-theme bg-cover bg-center p-4"
+              >
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="truncate text-lg font-medium">
+                      {[player.name, player.surname].filter(Boolean).join(' ') ||
+                        'Oyuncu'}
+                    </p>
+                    <p className="text-sm text-gray-300">
+                      #{player.shirtNumber ?? '-'} · {player.assignedPosition}
                     </p>
                   </div>
-                </div>
-                <div className="flex flex-col justify-center space-y-1 min-w-0">
-                  <h1 className="text-lg md:text-xl font-medium truncate">
-                    {player.user.user.nameSurname}
-                  </h1>
-                  <h3 className="text-lg font-medium text-gray-300 truncate">
-                    {player.position.abbreviation}
-                  </h3>
-                </div>
-              </div>
-              <div className="flex items-center justify-center md:w-1/2 gap-4 px-3 py-3 md:p-0">
-                <div className="grid grid-cols-10 gap-2  text-yellow-300">
-                  {[...Array(10)].map((_, index) => (
-                    <Star
-                      key={index}
-                      index={index}
-                      rating={ratings[player.user.user._id] || 0}
-                      onClick={(rating) =>
-                        handleRatingChange(player.user.user._id, rating)
-                      }
-                    />
-                  ))}
-                </div>
-                <div className="flex font-bold mt-1 min-w-16 text-lg  md:text-xl">
-                  <div className="w-7 flex justify-end">
-                    {ratings[player.user.user._id] || 0}
+                  <div className="flex gap-1 text-yellow-300">
+                    {[1, 2, 3, 4, 5].map((score) => (
+                      <button
+                        key={score}
+                        type="button"
+                        disabled={submitted || submitting}
+                        onClick={() => handleScoreChange(player.userId, score)}
+                        className="text-3xl disabled:cursor-not-allowed disabled:opacity-60"
+                        aria-label={`${score} puan`}
+                      >
+                        {scores[player.userId] >= score ? (
+                          <IoStar />
+                        ) : (
+                          <IoStarOutline />
+                        )}
+                      </button>
+                    ))}
                   </div>
-                  <div>/ 10</div>
                 </div>
+                {status && (
+                  <p
+                    className={`mt-2 text-sm ${
+                      status.type === 'error' ? 'text-red-400' : 'text-green-400'
+                    }`}
+                  >
+                    {status.message}
+                  </p>
+                )}
               </div>
-            </div>
-          ))}
-        </div>
-        <div className="mt-3 flex flex-col sm:flex-row w-full justify-between">
-          <div className=" ">
-            {validationError && (
-              <div className="text-red-500 mb-4">{validationError}</div>
-            )}
-          </div>
+            )
+          })}
+
+          {submissionMessage && (
+            <p className="text-sm text-gray-200">{submissionMessage}</p>
+          )}
           <button
-            className=" px-4 py-2 border-white border rounded-lg hover:cursor-pointer text-center"
-            onClick={handleVote}
+            type="submit"
+            disabled={submitting || targets.length === 0}
+            className="rounded-lg border border-white px-4 py-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Puanları Gönder
+            {submitting ? 'Oylar gönderiliyor...' : 'Oyları Gönder'}
           </button>
-        </div>
+        </form>
+      ) : (
+        <p className="mt-3 text-gray-300">
+          Yalnızca maç katılımcıları oy verebilir.
+        </p>
+      )}
+
+      <div className="mt-8 border-t border-gray-700 pt-5">
+        <h3 className="text-lg font-semibold">Oy Sonuçları</h3>
+        {resultsLoading ? (
+          <CgSpinner className="mt-4 animate-spin text-3xl" />
+        ) : resultsError ? (
+          <p className="mt-3 text-sm text-red-500">{resultsError}</p>
+        ) : results.length === 0 ? (
+          <p className="mt-3 text-gray-300">Henüz oy sonucu yok.</p>
+        ) : (
+          <div className="mt-3 grid gap-3 md:grid-cols-2">
+            {results.map((result) => {
+              const player = participantsById.get(result.userId)
+              const fullName = player
+                ? [player.name, player.surname].filter(Boolean).join(' ')
+                : ''
+
+              return (
+                <div
+                  key={result.userId}
+                  className="rounded-lg border border-gray-700 p-3"
+                >
+                  <p className="font-medium">{fullName || 'Oyuncu'}</p>
+                  <p className="text-sm text-gray-300">
+                    Ortalama: {Number(result.averageScore).toFixed(1)} · Oy:{' '}
+                    {result.voteCount}
+                  </p>
+                </div>
+              )
+            })}
+          </div>
+        )}
       </div>
-    </div>
-  )
-}
-
-const Star = ({ index, rating, onClick }) => {
-  const handleStarClick = (event) => {
-    const { left, width } = event.target.getBoundingClientRect()
-    const clickPosition = event.clientX - left
-    const halfClicked = clickPosition < width / 2
-    onClick(index + (halfClicked ? 0.5 : 1))
-  }
-
-  let starIcon
-  if (rating >= index + 1) {
-    starIcon = <IoStar />
-  } else if (rating >= index + 0.5) {
-    starIcon = <IoStarHalf />
-  } else {
-    starIcon = <IoStarOutline />
-  }
-
-  return (
-    <div
-      onClick={handleStarClick}
-      className="cursor-pointer text-2xl sm:text-3xl "
-    >
-      {starIcon}
-    </div>
+    </section>
   )
 }
 
